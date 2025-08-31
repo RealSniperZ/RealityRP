@@ -2,7 +2,7 @@
   const override = {
     fivem: {
       // Preferimos cfx para que funcione desde GitHub Pages sin proxy
-      cfx: 'cfx.re/join/4djzaoy',
+  cfx: 'https://cfx.re/join/4djzao',
       // Si no quieres mostrar IP públicamente
       showIP: false,
       // Intervalo de refresco
@@ -34,7 +34,7 @@
         tags: ['Devlog','Mejoras']
       }
     ],
-    events: [
+  events: [
       {
         title: 'Carrera urbana',
         caption: 'Carrera urbana',
@@ -49,6 +49,31 @@
         image: 'assets/img/placeholder.svg',
         tags: ['Social','Comunidad']
       }
+    ],
+    // Secciones de Staff configurables
+    staffSections: [
+      {
+        title: 'Dirección',
+        image: 'assets/img/placeholder.svg',
+        name: 'Dirección General',
+        role: 'Fundadores / Owners',
+        items: [
+          'Visión y roadmap del proyecto',
+          'Gestión de equipo y prioridades',
+          'Relación con comunidad y creadores'
+        ]
+      },
+      {
+        title: 'Administración',
+        image: 'assets/img/placeholder.svg',
+        name: 'Administración & Moderación',
+        role: 'Admins / Mods',
+        items: [
+          'Soporte: tickets y reportes',
+          'Aplicación de normativa y mentoría',
+          'Organización de eventos RP'
+        ]
+      }
     ]
   };
   if(window.SITE_CONFIG){
@@ -56,7 +81,8 @@
       fivem: Object.assign({}, window.SITE_CONFIG.fivem, override.fivem),
       brand: Object.assign({}, window.SITE_CONFIG.brand, override.brand),
       news: override.news ?? window.SITE_CONFIG.news,
-      events: override.events ?? window.SITE_CONFIG.events
+      events: override.events ?? window.SITE_CONFIG.events,
+      staffSections: override.staffSections ?? window.SITE_CONFIG.staffSections
     });
   } else {
     window.SITE_CONFIG = override;

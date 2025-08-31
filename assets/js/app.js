@@ -67,23 +67,10 @@
       ipTxt.textContent = `IP: ${ip}:${port}`;
     }
     if(cfx){
-      // Usar protocolo nativo de FiveM y fallback a HTTPS si el navegador lo bloquea
-      btnCfx.href = `fivem://connect/${cfx}`;
+      // Abrir siempre la página del servidor en cfx.re
+      const url = /^https?:\/\//i.test(cfx) ? cfx : `https://${cfx}`;
+      btnCfx.href = url;
       btnCfx.style.display = '';
-      btnCfx.addEventListener('click', (e)=>{
-        e.preventDefault();
-        let cancelled = false;
-        const onHidden = () => { cancelled = true; clearTimeout(fallbackTimer); document.removeEventListener('visibilitychange', onHidden); };
-        document.addEventListener('visibilitychange', onHidden);
-        const fallbackTimer = setTimeout(()=>{
-          if(!cancelled){
-            // Abrir la página de cfx como alternativa
-            window.location.href = `https://${cfx}`;
-          }
-        }, 1200);
-        // Intentar abrir FiveM
-        window.location.href = `fivem://connect/${cfx}`;
-      });
     } else if(btnCfx){
       btnCfx.style.display = 'none';
     }
@@ -168,4 +155,46 @@ function renderEvents(){
     eventsGrid.innerHTML = '';
     events.forEach(e=> eventsGrid.appendChild(makeCard(e)));
   }
+}
+
+// Render de secciones de Staff configurables
+function renderStaff(){
+  const cfg = window.SITE_CONFIG || {};
+  const sections = Array.isArray(cfg.staffSections) ? cfg.staffSections : [];
+  if(!sections.length) return;
+  const container = document.getElementById('staff-grid');
+  if(!container) return;
+  // Limpiar grid principal y en su lugar agregaremos títulos + cards por sección
+  container.innerHTML = '';
+  sections.forEach(sec => {
+    // Título de sección
+    const h2 = document.createElement('h2');
+    h2.className = 'section-title';
+    h2.style.marginTop = '1.5rem';
+    h2.textContent = sec.title || '';
+    container.parentElement.insertBefore(h2, container.nextSibling);
+
+    // Card de sección
+    const article = document.createElement('article');
+    article.className = 'card';
+    article.innerHTML = `
+      <div class="staff-card">
+        <img src="${sec.image || 'assets/img/placeholder.svg'}" alt="${sec.name || sec.title || 'Staff'}" />
+        <div>
+          <div style="font-weight:700; font-size:1.05rem;">${sec.name || ''}</div>
+          <div class="role">${sec.role || ''}</div>
+        </div>
+      </div>
+    `;
+    const ul = document.createElement('ul');
+    ul.className = 'kv';
+    ul.style.marginTop = '.6rem';
+    (sec.items || []).forEach(txt => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${txt}</span><span></span>`;
+      ul.appendChild(li);
+    });
+    article.appendChild(ul);
+    container.parentElement.insertBefore(article, container.nextSibling);
+  });
 }
