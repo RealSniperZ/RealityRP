@@ -8,16 +8,82 @@
 
   // Canvas fondo con partículas
   const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  function resize(){canvas.width=innerWidth; canvas.height=innerHeight}
+  const ctx = canvas?.getContext('2d');
+  function resize(){ if(!canvas) return; canvas.width=innerWidth; canvas.height=innerHeight; }
   window.addEventListener('resize', resize); resize();
-  const particles = Array.from({length: 80}, () => ({
+  // Partículas de fondo
+  const particles = (canvas ? Array.from({length: 80}, () => ({
     x: Math.random()*canvas.width,
     y: Math.random()*canvas.height,
     r: Math.random()*2+0.6,
     vx: (Math.random()-.5)*0.3,
     vy: (Math.random()-.5)*0.3
-  }));
+  })) : []);
+  // Estela del cursor (rosa)
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const trail = [];
+  const MAX_TRAIL = 140;
+  const addTrailPoint = (x,y)=>{
+    if(reduceMotion || !canvas) return;
+    trail.push({x,y,alpha:1, r:4});
+    if(trail.length>MAX_TRAIL) trail.shift();
+  };
+  window.addEventListener('mousemove', (e)=>{
+    if(!canvas) return;
+    addTrailPoint(e.clientX, e.clientY);
+  });
+  window.addEventListener('touchmove', (e)=>{
+    if(!canvas) return;
+    const t = e.touches && e.touches[0];
+    if(t) addTrailPoint(t.clientX, t.clientY);
+  }, {passive:true});
+  // Dibujo de partículas y estela
+  function stepParticles(){
+    if(!ctx || !canvas) return;
+    for(const p of particles){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0||p.x>canvas.width) p.vx*=-1;
+      if(p.y<0||p.y>canvas.height) p.vy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(124,77,255,0.6)';
+      ctx.fill();
+    }
+  }
+  function drawTrail(){
+    if(reduceMotion || !ctx) return;
+    // Degradar alfa y dibujar líneas suaves entre puntos
+    for(let i=0;i<trail.length;i++){
+      const a = trail[i];
+      a.alpha -= 0.02;
+    }
+    while(trail.length && trail[0].alpha<=0){ trail.shift(); }
+    for(let i=0;i<trail.length-1;i++){
+      const a = trail[i], b = trail[i+1];
+      const alpha = Math.max(0, Math.min(1, a.alpha));
+      ctx.strokeStyle = `rgba(255,0,168,${alpha*0.7})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      // Brillo puntual
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, 2.2, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,0,168,${alpha})`;
+      ctx.fill();
+    }
+  }
+  function animate(){
+    if(!ctx || !canvas) return; 
+    requestAnimationFrame(animate);
+    // Limpiar con transparencia para efecto de estela global
+    ctx.fillStyle = 'rgba(10,11,15,0.08)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    stepParticles();
+    drawTrail();
+  }
+  if(canvas && ctx) animate();
 
   // Marca, enlaces y utilidades UI
   function applyBrand(){

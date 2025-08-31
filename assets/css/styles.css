@@ -157,8 +157,8 @@ body{
 .social{display:flex; gap:.6rem}
 .social a{width:38px; height:38px; display:grid; place-items:center; border-radius:8px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#fff}
 
-/* Background FX */
-#bg-canvas{position:fixed; inset:0; z-index:-1}
+/* Background FX: visible sobre el fondo, sin bloquear clics */
+#bg-canvas{position:fixed; inset:0; z-index:0; pointer-events:none}
 
 /* Status colors */
 .badge.ok{background:rgba(0,230,118,.15); border-color:rgba(0,230,118,.5); color:#8ff9b8}
