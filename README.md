@@ -25,6 +25,20 @@ npx serve . -l 5500
 
 Luego abre: http://localhost:5500
 
+## Despliegue en GitHub Pages
+
+Este proyecto es estático y funciona directo en GitHub Pages.
+
+1. Asegúrate de tener tu repo en GitHub con la rama `main` o `master`.
+2. El flujo de trabajo `.github/workflows/deploy.yml` ya está configurado.
+3. Haz push a GitHub. El workflow publicará el sitio automáticamente en Pages.
+4. En la configuración del repo (Settings → Pages), verifica que la fuente sea "GitHub Actions".
+
+### Estado del servidor en Pages (sin proxy)
+
+- Si configuras `fivem.cfx` (por ejemplo `cfx.re/join/xxxxxx`), la web resolverá el endpoint IP:PUERTO usando la API pública de FiveM y consultará `dynamic.json`, `info.json` y `players.json` directamente. Esto evita problemas de CORS en Pages.
+- Si prefieres usar IP:PUERTO sin cfx, necesitarás que el servidor FiveM permita CORS hacia tu dominio de Pages o deberás usar un proxy propio (ver sección más abajo).
+
 ## Estructura
 
 - `index.html` — Layout y secciones
@@ -40,7 +54,7 @@ Luego abre: http://localhost:5500
   - `http://IP:PUERTO/info.json`
   - `http://IP:PUERTO/players.json`
 - Si usas `cfx.re`, el botón Conectar usará `fivem://` con el código CFX.
-- Estado en tiempo real sin CORS (recomendado): usa el proxy incluido.
+- Estado en tiempo real sin CORS en local: usa el proxy incluido.
   1. Instala Node.js LTS.
   2. Inicia el proxy apuntando a tu servidor FiveM:
      ```powershell
@@ -53,7 +67,7 @@ Luego abre: http://localhost:5500
        // ...
      }
      ```
-  4. Sirve la web (ver sección “Servir en local”).
+  4. Sirve la web (ver sección “Servir en local”). En GitHub Pages no necesitas este proxy si usas `cfx`.
 - Sin proxy (misma red o mismo dominio): asegúrate de que el navegador permita solicitudes directas a `http://IP:PUERTO/*.json` desde el origen de tu web, o sirve la web desde el mismo host.
 
 ## Licencia

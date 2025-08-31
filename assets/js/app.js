@@ -174,8 +174,37 @@
     }
     return null;
   }
+
+  // Intento de obtener endpoints mediante cfx.re (compatible con GitHub Pages)
+  async function getCfxResolvedBase(){
+    const cfx = cfg.fivem?.cfx;
+    if(!cfx) return null;
+    // cfx viene como 'cfx.re/join/abcd12' o solo código
+    const code = (cfx.includes('/') ? cfx.split('/').pop() : cfx).trim();
+    if(!code) return null;
+    // API pública de servidores FiveM
+    // Nota: Esta API es usada por el frontend de servidores de FiveM.
+    const urls = [
+      `https://servers-frontend.fivem.net/api/servers/single/${code}`,
+      `https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(code)}`
+    ];
+    for(const u of urls){
+      try{
+        const data = await fetchJSON(u);
+        // Estructura esperada: data.Data.connectEndPoints -> [ 'IP:PORT', ...]
+        const ep = data?.Data?.connectEndPoints?.find(Boolean);
+        if(ep){
+          const [host, port] = ep.split(':');
+          if(host && port){
+            return `http://${host}:${port}`;
+          }
+        }
+      }catch(_){/* continúa con el siguiente */}
+    }
+    return null;
+  }
   async function refreshStatus(){
-    const base = buildBaseUrl();
+    let base = buildBaseUrl();
     const onlineEl = document.getElementById('srv-online');
     const playersEl = document.getElementById('srv-players');
     const maxEl = document.getElementById('srv-max');
@@ -201,6 +230,10 @@
       return;
     }
     try{
+      if(!base){
+        // En GitHub Pages, si no hay baseOverride ni IP, intentamos cfx.re
+        base = await getCfxResolvedBase();
+      }
       if(!base) throw new Error('Sin IP configurada');
       const [dRes, iRes, pRes] = await Promise.allSettled([
         fetchJSON(`${base}/dynamic.json`),

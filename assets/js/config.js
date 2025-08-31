@@ -1,13 +1,16 @@
 (function(){
   const override = {
     fivem: {
-  ip: '79.116.6.42',
-  port: 30120,
-  refreshMs: 10000,
-  cfx: 'cfx.re/join/4djzao',
-  showIP: false,
-  // usar proxy local (5070) para evitar CORS y consultar /dynamic.json, /info.json, /players.json
-  baseOverride: 'http://localhost:5070/fivem'
+      // Preferimos cfx para que funcione desde GitHub Pages sin proxy
+      cfx: 'cfx.re/join/4djzao',
+      // Si no quieres mostrar IP públicamente
+      showIP: false,
+      // Intervalo de refresco
+      refreshMs: 10000,
+      // Si prefieres usar IP:PUERTO directamente, descomenta y elimina showIP si deseas mostrarla
+      // ip: '79.116.6.42',
+      // port: 30120,
+      // baseOverride: 'https://tu-dominio/fivem' // deja vacío en Pages
     }
   };
   if(window.SITE_CONFIG){
