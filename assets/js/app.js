@@ -210,25 +210,34 @@
     if(!cfx) return null;
     const code = (cfx.includes('/') ? cfx.split('/').pop() : cfx).trim();
     if(!code) return null;
-    const url = `https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(code)}`;
-    try{
-      const resp = await fetchJSON(url);
-      // Normalizamos estructura potencial
-      const root = resp?.Data || resp?.data || resp;
-      const d = root?.Data || root;
-      const playersRaw = d?.players || d?.Players || d?.playersList || [];
-      const players = Array.isArray(playersRaw)
-        ? playersRaw.map(p=>({ name: p?.name || p?.Name || p?.n || 'Jugador' })).filter(p=>p.name)
-        : [];
-      const clients = d?.clients ?? (Array.isArray(players) ? players.length : undefined);
-      const max = d?.svMaxclients ?? d?.sv_maxclients ?? d?.vars?.sv_maxClients ?? d?.vars?.sv_maxclients;
-      const map = d?.mapname ?? d?.vars?.mapname;
-      const build = d?.server ?? d?.version ?? d?.vars?.sv_enforceGameBuild;
-      const online = Number.isFinite(Number(clients)) || Boolean(d?.connectEndPoints?.length);
-      return { online: !!online, clients: clients ?? 0, max: max ?? '—', map: map || '—', build: build || '—', players };
-    }catch(_){
-      return null;
+    const urls = [
+      `https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(code)}`,
+      `https://api.cfx.re/servers/single/${encodeURIComponent(code)}`
+    ];
+    for(const url of urls){
+      try{
+        console.debug('[RealityRP] Consultando CFX API:', url);
+        const resp = await fetchJSON(url);
+        // Normalizamos estructura potencial
+        const root = resp?.Data || resp?.data || resp;
+        const d = root?.Data || root;
+        const playersRaw = d?.players || d?.Players || d?.playersList || [];
+        const players = Array.isArray(playersRaw)
+          ? playersRaw.map(p=>({ name: p?.name || p?.Name || p?.n || 'Jugador' })).filter(p=>p.name)
+          : [];
+        const clients = d?.clients ?? d?.Clients ?? (Array.isArray(players) ? players.length : undefined);
+        const max = d?.svMaxclients ?? d?.sv_maxclients ?? d?.vars?.sv_maxClients ?? d?.vars?.sv_maxclients;
+        const map = d?.mapname ?? d?.Mapname ?? d?.vars?.mapname;
+        const build = d?.server ?? d?.version ?? d?.Server ?? d?.vars?.sv_enforceGameBuild;
+        const online = Number.isFinite(Number(clients)) || Boolean(d?.connectEndPoints?.length);
+        const result = { online: !!online, clients: clients ?? 0, max: max ?? '—', map: map || '—', build: build || '—', players };
+        console.debug('[RealityRP] CFX API OK:', { url, online: result.online, clients: result.clients, max: result.max, map: result.map, players: result.players?.length });
+        return result;
+      }catch(err){
+        console.warn('[RealityRP] Fallback CFX endpoint falló:', url, err?.message || err);
+      }
     }
+    return null;
   }
   async function refreshStatus(){
     let base = buildBaseUrl();
@@ -257,6 +266,9 @@
       return;
     }
     try{
+      // Pre-estado
+      if(onlineEl) onlineEl.textContent = '…';
+      if(playersEl) playersEl.textContent = '…';
       // En HTTPS (GitHub Pages), evitamos Mixed Content http://IP:PUERTO
       const isHttps = location.protocol === 'https:';
       if(isHttps && base && base.startsWith('http://')){
@@ -265,7 +277,7 @@
 
       // Primero intentamos cfx.re (HTTPS)
       let usedCfx = false;
-      if(cfg.fivem?.cfx){
+  if(cfg.fivem?.cfx){
         const cfxStat = await getCfxStatus();
         if(cfxStat){
           usedCfx = true;
@@ -289,6 +301,8 @@
             const arr = Array.isArray(cfxStat.players) ? cfxStat.players : [];
             list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
           }
+        } else {
+          console.warn('[RealityRP] Sin datos desde CFX (puede estar offline/no listado). Intentando endpoints directos si es seguro...');
         }
       }
 
@@ -301,7 +315,8 @@
             base = resolved;
           }
         }
-        if(!base) throw new Error('Sin IP configurada');
+  if(!base) throw new Error('Sin IP configurada');
+  console.debug('[RealityRP] Consultando endpoints directos:', base);
         const [dRes, iRes, pRes] = await Promise.allSettled([
           fetchJSON(`${base}/dynamic.json`),
           fetchJSON(`${base}/info.json`),
@@ -311,6 +326,7 @@
         const info = iRes.status === 'fulfilled' ? iRes.value : null;
         const players = pRes.status === 'fulfilled' ? pRes.value : null;
         const online = !!(dyn || info);
+  console.debug('[RealityRP] Endpoints directos:', { online, clients: dyn?.clients, players: Array.isArray(players) ? players.length : 0 });
         if(onlineEl) onlineEl.textContent = online ? 'ON' : 'OFF';
         if(playersEl) playersEl.textContent = (dyn?.clients ?? (Array.isArray(players) ? players.length : 0) ?? 0);
         if(maxEl) maxEl.textContent = (dyn?.sv_maxclients ?? info?.vars?.sv_maxClients ?? '—');
@@ -333,6 +349,7 @@
         }
       }
     }catch(err){
+      console.error('[RealityRP] Error al obtener estado:', err);
   if(onlineEl) onlineEl.textContent = 'OFF';
       if(playersEl) playersEl.textContent = '—';
       if(maxEl) maxEl.textContent = '—';
@@ -344,7 +361,7 @@
         badge.classList.add('down');
       }
       if(list){
-        list.innerHTML = '<div class="player-item"><span>No disponible</span><span class="meta">—</span></div>';
+        list.innerHTML = '<div class="player-item"><span>No disponible</span><span class="meta">Error al consultar API</span></div>';
       }
     }
   }
