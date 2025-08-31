@@ -53,25 +53,25 @@
     // Secciones de Staff configurables
     staffSections: [
       {
-        title: 'Dirección',
+        title: 'Equipo',
         image: 'assets/img/placeholder.svg',
-        name: 'Dirección General',
-        role: 'Fundadores / Owners',
+        name: 'Equipo Staff',
+        role: 'Coordinación',
         items: [
-          'Visión y roadmap del proyecto',
-          'Gestión de equipo y prioridades',
-          'Relación con comunidad y creadores'
+          'Planificación de actividades y roadmap',
+          'Coordinación con creadores y comunidad',
+          'Mejoras de calidad de vida en el servidor'
         ]
       },
       {
-        title: 'Administración',
+        title: 'Soporte',
         image: 'assets/img/placeholder.svg',
-        name: 'Administración & Moderación',
-        role: 'Admins / Mods',
+        name: 'Soporte & Moderación',
+        role: 'Asistencia',
         items: [
-          'Soporte: tickets y reportes',
-          'Aplicación de normativa y mentoría',
-          'Organización de eventos RP'
+          'Atención de tickets y reportes',
+          'Ayuda a nuevos jugadores',
+          'Moderación de canales y eventos'
         ]
       }
     ]

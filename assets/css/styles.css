@@ -86,6 +86,8 @@ body{
 .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:1rem; box-shadow:var(--shadow)}
 .card-hover{transition:transform .25s ease, box-shadow .25s ease}
 .card-hover:hover{transform:translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,.45), 0 0 50px rgba(255,0,168,.12)}
+/* Párrafos en tarjetas: menos separación, texto justificado y legible */
+.card p{margin:0 0 .6rem; line-height:1.5; text-align:justify; text-justify:inter-word; hyphens:auto; color:#dce3f4}
 
 /* About grid y visual */
 .about-grid{display:grid; gap:1rem; grid-template-columns:1.1fr .9fr}
@@ -112,8 +114,15 @@ body{
 .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
 .reveal.visible{opacity:1; transform:none}
 .kv{list-style:none; margin:0; padding:0}
-.kv li{display:flex; align-items:center; justify-content:space-between; padding:.4rem 0; border-bottom:1px dashed rgba(255,255,255,.08)}
+/* Pares clave/valor alineados en columnas */
+.kv li{display:grid; grid-template-columns:160px 1fr; gap:.6rem; align-items:start; padding:.5rem 0; border-bottom:1px dashed rgba(255,255,255,.08)}
 .kv li:last-child{border-bottom:none}
+.kv li span{overflow-wrap:anywhere; word-break:normal; line-height:1.45}
+.kv li span:first-child{color:#e8defa; font-weight:700}
+.kv li span:last-child{color:#cfd6e6}
+@media (max-width: 520px){
+  .kv li{grid-template-columns:1fr; gap:.25rem}
+}
 
 /* Players */
 .players-list{display:grid; gap:.5rem}
