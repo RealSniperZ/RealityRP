@@ -77,9 +77,8 @@
   function animate(){
     if(!ctx || !canvas) return; 
     requestAnimationFrame(animate);
-    // Limpiar con transparencia para efecto de estela global
-    ctx.fillStyle = 'rgba(10,11,15,0.08)';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Limpiar completamente para no oscurecer texto
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     stepParticles();
     drawTrail();
   }
@@ -117,6 +116,13 @@
     const navToggle = document.getElementById('nav-toggle');
     if(nav && navToggle){
       navToggle.addEventListener('click', ()=> nav.classList.toggle('open'));
+      // Accesibilidad: cerrar menú al elegir un enlace en móvil
+      nav.addEventListener('click', (e)=>{
+        const a = e.target.closest('a');
+        if(a && nav.classList.contains('open')){
+          nav.classList.remove('open');
+        }
+      });
     }
   }
 
@@ -189,6 +195,23 @@
     },{threshold:.1});
     document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
   // Sin estado/jugadores, no programamos intervalos.
+  // Orientar zoom en imágenes hacia el puntero
+  try{
+    const cards = document.querySelectorAll('.visual-card');
+    cards.forEach(card=>{
+      card.addEventListener('mousemove', (e)=>{
+        const rect = card.getBoundingClientRect();
+        const px = ((e.clientX - rect.left)/rect.width)*100;
+        const py = ((e.clientY - rect.top)/rect.height)*100;
+        card.style.setProperty('--px', px+'%');
+        card.style.setProperty('--py', py+'%');
+      });
+      card.addEventListener('mouseleave', ()=>{
+        card.style.removeProperty('--px');
+        card.style.removeProperty('--py');
+      });
+    });
+  }catch{}
   }
 
   document.addEventListener('DOMContentLoaded', init);
