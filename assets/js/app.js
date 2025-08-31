@@ -34,8 +34,23 @@
       ipTxt.textContent = `IP: ${ip}:${port}`;
     }
     if(cfx){
-      btnCfx.href = `https://${cfx}`;
+      // Usar protocolo nativo de FiveM y fallback a HTTPS si el navegador lo bloquea
+      btnCfx.href = `fivem://connect/${cfx}`;
       btnCfx.style.display = '';
+      btnCfx.addEventListener('click', (e)=>{
+        e.preventDefault();
+        let cancelled = false;
+        const onHidden = () => { cancelled = true; clearTimeout(fallbackTimer); document.removeEventListener('visibilitychange', onHidden); };
+        document.addEventListener('visibilitychange', onHidden);
+        const fallbackTimer = setTimeout(()=>{
+          if(!cancelled){
+            // Abrir la página de cfx como alternativa
+            window.location.href = `https://${cfx}`;
+          }
+        }, 1200);
+        // Intentar abrir FiveM
+        window.location.href = `fivem://connect/${cfx}`;
+      });
     } else if(btnCfx){
       btnCfx.style.display = 'none';
     }
