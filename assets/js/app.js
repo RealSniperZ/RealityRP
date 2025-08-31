@@ -257,9 +257,10 @@
     const playersEl = document.getElementById('srv-players');
     const maxEl = document.getElementById('srv-max');
     const mapEl = document.getElementById('srv-map');
-    const buildEl = document.getElementById('srv-build');
-    const badge = document.getElementById('status-badge');
-    const list = document.getElementById('players-list');
+  const buildEl = document.getElementById('srv-build');
+  const badge = document.getElementById('status-badge');
+  const list = document.getElementById('players-list');
+  const updatedEl = document.getElementById('srv-updated');
     // Modo prueba (si está activado en config) -> desactivado por defecto
     if(cfg.fivem?.forceOnline){
       if(onlineEl) onlineEl.textContent = 'ON';
@@ -313,6 +314,7 @@
             const arr = Array.isArray(cfxStat.players) ? cfxStat.players : [];
             list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
           }
+          if(updatedEl){ updatedEl.textContent = 'Última actualización: ' + new Date().toLocaleTimeString(); }
         } else {
           console.warn('[RealityRP] Sin datos desde CFX (puede estar offline/no listado). Intentando endpoints directos si es seguro...');
         }
@@ -355,10 +357,11 @@
             badge.classList.add('down');
           }
         }
-        const arr = Array.isArray(players) ? players : [];
-        if(list){
+  const arr = Array.isArray(players) ? players : [];
+  if(list){
           list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
-        }
+  }
+  if(updatedEl){ updatedEl.textContent = 'Última actualización: ' + new Date().toLocaleTimeString(); }
       }
 
       // Si seguimos sin datos, usar caché (workflow)
@@ -385,6 +388,7 @@
             const arr = Array.isArray(cache.players) ? cache.players : [];
             list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
           }
+          if(updatedEl){ updatedEl.textContent = 'Última actualización: ' + (cache.updatedAt || new Date().toLocaleTimeString()); }
           console.debug('[RealityRP] Usando caché de status (workflow)');
           return; // fin
         }
