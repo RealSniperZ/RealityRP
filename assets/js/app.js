@@ -198,3 +198,42 @@ function renderStaff(){
     container.parentElement.insertBefore(article, container.nextSibling);
   });
 }
+
+// Render de FAQ con acordeón (clic para ver la información)
+function renderFAQ(){
+  const cfg = window.SITE_CONFIG || {};
+  const faq = Array.isArray(cfg.faq) ? cfg.faq : [];
+  const wrap = document.getElementById('faq-accordion');
+  if(!wrap) return;
+  const data = faq.length ? faq : [
+    { q: '¿Cómo me conecto al servidor?', a: 'Pulsa el botón CFX Join de la portada o abre FiveM y usa el enlace https://cfx.re/join/xxxxxx. También puedes añadirlo a Favoritos.' },
+    { q: '¿Necesito whitelist?', a: 'Sí. Únete al Discord y completa el formulario de whitelist. Revisa el canal de reglas antes de aplicar.' },
+    { q: '¿Qué pasa si no cumplo las normas?', a: 'Dependiendo de la gravedad: advertencia, kick temporal o ban. El staff evalúa cada caso con evidencias.' },
+    { q: '¿Edad mínima y VOIP?', a: 'Se requiere VOIP funcional y actitud madura. Consulta en el Discord si existe edad mínima vigente.' },
+    { q: '¿Cómo reporto a alguien o pido soporte?', a: 'Abre un ticket en el Discord con pruebas (video/capturas) y explica el contexto de rol claramente.' },
+  ];
+  wrap.innerHTML = '';
+  data.forEach(item =>{
+    const acc = document.createElement('div');
+    acc.className = 'accordion-item';
+    acc.innerHTML = `
+      <div class="accordion-header">
+        <span>${item.q}</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="accordion-body">${item.a}</div>
+    `;
+    wrap.appendChild(acc);
+  });
+  // Toggle por clic
+  wrap.addEventListener('click', (e)=>{
+    const header = e.target.closest('.accordion-header');
+    if(!header) return;
+    const item = header.parentElement;
+    // Cerrar otros y abrir este
+    wrap.querySelectorAll('.accordion-item').forEach(it=>{
+      if(it !== item) it.classList.remove('open');
+    });
+    item.classList.toggle('open');
+  });
+}
