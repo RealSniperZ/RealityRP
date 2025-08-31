@@ -1,9 +1,9 @@
 {
   "online": true,
-  "clients": 2,
+  "clients": 0,
   "max": "64",
   "map": "San Andreas",
   "build": "FXServer-master SERVER v1.0.0.18683 win32",
-  "players": [{"name":"el jali"},{"name":"Real_Sniper_Z"}],
-  "updatedAt": "2025-08-31T04:47:06Z"
+  "players": [],
+  "updatedAt": "2025-08-31T04:53:55Z"
 }
