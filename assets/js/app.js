@@ -239,6 +239,18 @@
     }
     return null;
   }
+
+  // Fallback: obtener estado desde un JSON estático generado por workflow
+  async function getCachedStatus(){
+    try{
+      const url = `data/status.json?ts=${Date.now()}`;
+      const d = await fetchJSON(url);
+      if(!d) return null;
+      // Validar forma
+      if(typeof d.online === 'boolean') return d;
+      return null;
+    }catch(_){ return null; }
+  }
   async function refreshStatus(){
     let base = buildBaseUrl();
     const onlineEl = document.getElementById('srv-online');
@@ -306,7 +318,7 @@
         }
       }
 
-      // Si no usamos cfx o queremos datos más precisos, intentamos endpoints directos cuando sea seguro
+  // Si no usamos cfx o queremos datos más precisos, intentamos endpoints directos cuando sea seguro
       if(!usedCfx){
         if(!base){
           // intentar resolver por cfx a IP (solo si la página no es HTTPS o el destino es https)
@@ -346,6 +358,35 @@
         const arr = Array.isArray(players) ? players : [];
         if(list){
           list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
+        }
+      }
+
+      // Si seguimos sin datos, usar caché (workflow)
+      if(!usedCfx){
+        const cache = await getCachedStatus();
+        if(cache){
+          if(onlineEl) onlineEl.textContent = cache.online ? 'ON' : 'OFF';
+          if(playersEl) playersEl.textContent = cache.clients ?? '—';
+          if(maxEl) maxEl.textContent = cache.max ?? '—';
+          if(mapEl) mapEl.textContent = cache.map ?? '—';
+          if(buildEl) buildEl.textContent = cache.build ?? '—';
+          if(badge){
+            if(cache.online){
+              badge.textContent = 'Estado: Activo';
+              badge.classList.remove('down');
+              badge.classList.add('ok');
+            } else {
+              badge.textContent = 'Estado: Off';
+              badge.classList.remove('ok');
+              badge.classList.add('down');
+            }
+          }
+          if(list){
+            const arr = Array.isArray(cache.players) ? cache.players : [];
+            list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
+          }
+          console.debug('[RealityRP] Usando caché de status (workflow)');
+          return; // fin
         }
       }
     }catch(err){

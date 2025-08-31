@@ -1,0 +1,59 @@
+name: Update status cache
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate status.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          CODE="4djzao"
+          URL1="https://servers-frontend.fivem.net/api/servers/single/${CODE}"
+          URL2="https://api.cfx.re/servers/single/${CODE}"
+          fetch() { curl -fsSL "$1" || true; }
+          DATA=$(fetch "$URL1")
+          if [ -z "$DATA" ]; then DATA=$(fetch "$URL2"); fi
+          ONLINE=false; CLIENTS=0; MAX="—"; MAP="—"; BUILD="—"; PLAYERS_JSON="[]"
+          if [ -n "$DATA" ]; then
+            # Usa jq si está disponible
+            if command -v jq >/dev/null 2>&1; then
+              ROOT=$(echo "$DATA" | jq -c '.Data // .data // .')
+              D=$(echo "$ROOT" | jq -c '.Data // .')
+              CLIENTS=$(echo "$D" | jq -r '(.clients // .Clients // (.players|length) // 0)')
+              if [ "$CLIENTS" != "null" ] && [ "$CLIENTS" != "" ]; then ONLINE=true; fi
+              MAX=$(echo "$D" | jq -r '(.svMaxclients // .sv_maxclients // .vars.sv_maxClients // .vars.sv_maxclients // "—")')
+              MAP=$(echo "$D" | jq -r '(.mapname // .Mapname // .vars.mapname // "—")')
+              BUILD=$(echo "$D" | jq -r '(.server // .version // .Server // .vars.sv_enforceGameBuild // "—")')
+              PLAYERS_JSON=$(echo "$D" | jq -c '(.players // .Players // .playersList // []) | map({name: (.name // .Name // .n // "Jugador")})')
+            fi
+          fi
+          mkdir -p data
+          cat > data/status.json <<JSON
+          {
+            "online": ${ONLINE},
+            "clients": ${CLIENTS},
+            "max": "${MAX}",
+            "map": "${MAP}",
+            "build": "${BUILD}",
+            "players": ${PLAYERS_JSON},
+            "updatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          JSON
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(status): update cached status.json"
+          file_pattern: data/status.json
