@@ -49,7 +49,7 @@
       const brandNameEls = [document.getElementById('brand-name'), document.getElementById('server-name'), document.getElementById('footer-name')];
       brandNameEls.forEach(el=>{ if(el) el.textContent = name;});
       const tl = document.getElementById('server-tagline'); if(tl) tl.textContent = tagline;
-      if(logo){ const img = document.querySelector('.logo'); if(img) img.src = logo; }
+      if(logo){ document.querySelectorAll('.logo').forEach(img=>{ img.src = logo; }); }
     }
     if(cfg.links){
       const setHref=(id,url)=>{ const el=document.getElementById(id); if(el && url) el.href=url; };
