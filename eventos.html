@@ -16,7 +16,7 @@
     <header class="site-header">
       <div class="container header-inner">
         <a href="index.html" class="brand">
-          <img src="assets/img/logo.svg" alt="RealityRP" class="logo" />
+          <img src="assets/img/logo.png" alt="RealityRP" class="logo" />
           <span id="brand-name">RealityRP</span>
         </a>
         <nav class="nav" id="nav">
@@ -38,6 +38,16 @@
       <section class="section">
         <div class="container">
           <h1 class="section-title"><i class="fa-solid fa-bullhorn"></i> Noticias y eventos</h1>
+
+          <!-- Bloque: Noticias (renderizado desde JS) -->
+          <h2 class="section-title" id="noticias" style="margin-top:1rem;">Noticias</h2>
+          <div class="grid cards" id="news-grid"></div>
+
+          <!-- Separación visual entre Noticias y Eventos -->
+          <div style="height:1rem"></div>
+
+          <!-- Bloque: Eventos (renderizado desde JS) -->
+          <h2 class="section-title" id="eventos" style="margin-top:1rem;">Eventos</h2>
           <div class="grid cards" id="events-grid"></div>
         </div>
       </section>

@@ -2,7 +2,7 @@
 window.SITE_CONFIG = {
   brand: {
     name: 'RealityRP',
-    logo: 'assets/img/logo.svg',
+  logo: 'assets/img/logo.png',
     tagline: 'Vive el roleplay al máximo. Economía, facciones, trabajos y eventos únicos.'
   },
   fivem: {
