@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff00a8" />
+    <meta name="description" content="Servidor FiveM — Información, estado, jugadores, eventos y comunidad." />
+    <title>RealityRP — FiveM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkfAMZRdS4Z1qqN26xIrczW6Q9jIY3MZ6YbV0Pp+G8C4YxZ7Z2Fh3rYkg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#inicio" class="brand">
+          <img src="assets/img/logo.svg" alt="RealityRP" class="logo" />
+          <span id="brand-name">RealityRP</span>
+        </a>
+        <nav class="nav" id="nav">
+          <a href="index.html">Inicio</a>
+          <a href="estado.html">Estado</a>
+          <a href="jugadores.html">Jugadores</a>
+          <a href="caracteristicas.html">Características</a>
+          <a href="eventos.html">Eventos</a>
+          <a href="galeria.html">Galería</a>
+          <a href="staff.html">Staff</a>
+          <a href="faq.html">Preguntas</a>
+          <a class="btn btn-discord" id="discord-link" target="_blank" rel="noopener">Discord</a>
+        </nav>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="inicio" class="hero">
+        <div class="container hero-inner">
+          <div class="pill">Servidor FiveM</div>
+          <h1 class="title">
+            <span class="accent">Bienvenido a</span>
+            <span id="server-name">RealityRP</span>
+          </h1>
+          <p id="server-tagline" class="subtitle">Vive el roleplay al máximo. Economía, facciones, trabajos y eventos únicos.</p>
+          <div class="cta">
+            <button class="btn btn-primary" id="btn-conectar"><i class="fa-solid fa-right-to-bracket"></i> Conectar</button>
+            <a class="btn btn-ghost" href="estado.html"><i class="fa-solid fa-signal"></i> Ver estado</a>
+            <button class="btn btn-ghost" id="btn-copiar"><i class="fa-regular fa-copy"></i> Copiar IP</button>
+            <a class="btn btn-ghost" id="btn-cfx" target="_blank" rel="noopener"><i class="fa-brands fa-rocketchat"></i> CFX Join</a>
+          </div>
+          <div class="ip-row">
+            <span class="chip" id="ip-text">IP: 0.0.0.0:30120</span>
+          </div>
+          <div class="status-row">
+            <span class="badge" id="status-badge">Estado: Desconocido</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="sobre" class="section">
+        <div class="container">
+          <h2 class="section-title"><i class="fa-solid fa-circle-info"></i> Sobre el servidor</h2>
+          <div class="about-grid">
+            <article class="card card-hover reveal">
+              <h3>¿Qué es <span id="server-name-about">RealityRP</span>?</h3>
+              <p id="about-text">Servidor de rol en FiveM con enfoque en historias, economía viva y eventos regulares. Únete a la comunidad y crea tu camino.</p>
+              <div id="about-chips" class="chips"></div>
+              <div class="cta" style="margin-top:.8rem">
+                <a class="btn btn-primary" href="caracteristicas.html"><i class="fa-solid fa-gamepad"></i> Ver características</a>
+                <a class="btn btn-ghost" href="faq.html"><i class="fa-regular fa-circle-question"></i> Guía de conexión</a>
+              </div>
+            </article>
+            <figure class="visual-card reveal">
+              <img src="assets/img/gal1.jpg" alt="Escena RP" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'"/>
+              <figcaption id="about-figure-caption">Historias, facciones y eventos semanales</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section id="desarrollo" class="section">
+        <div class="container">
+          <h2 class="section-title"><i class="fa-solid fa-wrench"></i> Desarrollo</h2>
+          <div class="timeline" id="timeline"></div>
+          <div class="callout reveal">
+            <div>
+              <h3>Únete al Discord</h3>
+              <p>Entérate de cambios, eventos y whitelists.</p>
+            </div>
+            <a class="btn btn-primary" id="discord-link" target="_blank" rel="noopener"><i class="fa-brands fa-discord"></i> Discord</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="social">
+          <a id="social-discord" target="_blank" rel="noopener" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a id="social-twitch" target="_blank" rel="noopener" aria-label="Twitch"><i class="fa-brands fa-twitch"></i></a>
+          <a id="social-youtube" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a id="social-tiktok" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+        <p>© <span id="year"></span> <span id="footer-name">RealityRP</span>. No afiliado con Rockstar Games o Take-Two.</p>
+      </div>
+    </footer>
+
+    <!-- Carga primero un config de ejemplo y permite sobreescritura con config.js si existe -->
+    <script src="assets/js/config.example.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+  </html>

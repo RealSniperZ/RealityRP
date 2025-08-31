@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/tasks.json",
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Proxy FiveM (Python)",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "proxy_server.py",
+        "5050",
+        "http://79.116.6.42:30120"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Web estática (Python)",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "http.server",
+        "5500"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
