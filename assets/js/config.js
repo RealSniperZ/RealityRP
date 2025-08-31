@@ -2,7 +2,7 @@
   const override = {
     fivem: {
       // Preferimos cfx para que funcione desde GitHub Pages sin proxy
-      cfx: 'cfx.re/join/4djzao',
+      cfx: 'cfx.re/join/4djzaoy',
       // Si no quieres mostrar IP públicamente
       showIP: false,
       // Intervalo de refresco
