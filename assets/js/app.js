@@ -34,8 +34,10 @@
     if(footerName) footerName.textContent = name;
     // Social/Discord
     const links = cfg.links || {};
-    const discordBtn = document.getElementById('discord-link');
-    if(discordBtn && links.discord) discordBtn.href = links.discord;
+  const discordBtn = document.getElementById('discord-link');
+  if(discordBtn && links.discord) discordBtn.href = links.discord;
+  const discordBtnCta = document.getElementById('discord-link-cta');
+  if(discordBtnCta && links.discord) discordBtnCta.href = links.discord;
     const sd = document.getElementById('social-discord');
     if(sd && links.discord) sd.href = links.discord;
     const stw = document.getElementById('social-twitch');
@@ -155,6 +157,47 @@ function renderEvents(){
     eventsGrid.innerHTML = '';
     events.forEach(e=> eventsGrid.appendChild(makeCard(e)));
   }
+}
+
+// Render de galería con 4 secciones y flechas
+function renderGallery(){
+  const cfg = window.SITE_CONFIG || {};
+  const track = document.getElementById('gal-track');
+  const btnPrev = document.getElementById('gal-prev');
+  const btnNext = document.getElementById('gal-next');
+  if(!track) return; // No estamos en galeria.html
+  const items = Array.isArray(cfg.gallery) && cfg.gallery.length
+    ? cfg.gallery.slice(0, 4)
+    : [
+        { src: 'assets/img/placeholder.svg', caption: 'Galería 1' },
+        { src: 'assets/img/placeholder.svg', caption: 'Galería 2' },
+        { src: 'assets/img/placeholder.svg', caption: 'Galería 3' },
+        { src: 'assets/img/placeholder.svg', caption: 'Galería 4' },
+      ];
+  track.innerHTML = '';
+  items.forEach(it =>{
+    const fig = document.createElement('figure');
+    fig.className = 'carousel-slide';
+    fig.innerHTML = `
+      <img src="${it.src}" alt="${it.caption || ''}" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'" />
+      ${it.caption ? `<div class="caption">${it.caption}</div>` : ''}
+    `;
+    track.appendChild(fig);
+  });
+  // Navegación
+  const getStep = () => {
+    const first = track.querySelector('.carousel-slide');
+    if(!first) return track.clientWidth;
+    const style = getComputedStyle(track);
+    const gap = parseFloat(style.gap || '0') || 0;
+    return first.getBoundingClientRect().width + gap;
+  };
+  btnPrev?.addEventListener('click', ()=>{
+    track.scrollBy({ left: -getStep(), behavior: 'smooth' });
+  });
+  btnNext?.addEventListener('click', ()=>{
+    track.scrollBy({ left: getStep(), behavior: 'smooth' });
+  });
 }
 
 // Render de secciones de Staff configurables
