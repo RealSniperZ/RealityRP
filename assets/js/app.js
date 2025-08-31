@@ -203,6 +203,33 @@
     }
     return null;
   }
+
+  // Obtener estado/players desde cfx.re (compatible con HTTPS en Pages)
+  async function getCfxStatus(){
+    const cfx = cfg.fivem?.cfx;
+    if(!cfx) return null;
+    const code = (cfx.includes('/') ? cfx.split('/').pop() : cfx).trim();
+    if(!code) return null;
+    const url = `https://servers-frontend.fivem.net/api/servers/single/${encodeURIComponent(code)}`;
+    try{
+      const resp = await fetchJSON(url);
+      // Normalizamos estructura potencial
+      const root = resp?.Data || resp?.data || resp;
+      const d = root?.Data || root;
+      const playersRaw = d?.players || d?.Players || d?.playersList || [];
+      const players = Array.isArray(playersRaw)
+        ? playersRaw.map(p=>({ name: p?.name || p?.Name || p?.n || 'Jugador' })).filter(p=>p.name)
+        : [];
+      const clients = d?.clients ?? (Array.isArray(players) ? players.length : undefined);
+      const max = d?.svMaxclients ?? d?.sv_maxclients ?? d?.vars?.sv_maxClients ?? d?.vars?.sv_maxclients;
+      const map = d?.mapname ?? d?.vars?.mapname;
+      const build = d?.server ?? d?.version ?? d?.vars?.sv_enforceGameBuild;
+      const online = Number.isFinite(Number(clients)) || Boolean(d?.connectEndPoints?.length);
+      return { online: !!online, clients: clients ?? 0, max: max ?? '—', map: map || '—', build: build || '—', players };
+    }catch(_){
+      return null;
+    }
+  }
   async function refreshStatus(){
     let base = buildBaseUrl();
     const onlineEl = document.getElementById('srv-online');
@@ -230,40 +257,80 @@
       return;
     }
     try{
-      if(!base){
-        // En GitHub Pages, si no hay baseOverride ni IP, intentamos cfx.re
-        base = await getCfxResolvedBase();
+      // En HTTPS (GitHub Pages), evitamos Mixed Content http://IP:PUERTO
+      const isHttps = location.protocol === 'https:';
+      if(isHttps && base && base.startsWith('http://')){
+        base = null; // bloquear llamadas directas http
       }
-      if(!base) throw new Error('Sin IP configurada');
-      const [dRes, iRes, pRes] = await Promise.allSettled([
-        fetchJSON(`${base}/dynamic.json`),
-        fetchJSON(`${base}/info.json`),
-        fetchJSON(`${base}/players.json`)
-      ]);
-      const dyn = dRes.status === 'fulfilled' ? dRes.value : null;
-      const info = iRes.status === 'fulfilled' ? iRes.value : null;
-      const players = pRes.status === 'fulfilled' ? pRes.value : null;
-  const online = !!(dyn || info);
-  if(onlineEl) onlineEl.textContent = online ? 'ON' : 'OFF';
-      if(playersEl) playersEl.textContent = (dyn?.clients ?? (Array.isArray(players) ? players.length : 0) ?? 0);
-      if(maxEl) maxEl.textContent = (dyn?.sv_maxclients ?? info?.vars?.sv_maxClients ?? '—');
-      if(mapEl) mapEl.textContent = (info?.mapname || info?.vars?.mapname || '—');
-      if(buildEl) buildEl.textContent = (info?.server || info?.version || '—');
-      if(badge){
-        if(online){
-          badge.textContent = 'Estado: Activo';
-          badge.classList.remove('down');
-          badge.classList.add('ok');
-        } else {
-          badge.textContent = 'Estado: Off';
-          badge.classList.remove('ok');
-          badge.classList.add('down');
+
+      // Primero intentamos cfx.re (HTTPS)
+      let usedCfx = false;
+      if(cfg.fivem?.cfx){
+        const cfxStat = await getCfxStatus();
+        if(cfxStat){
+          usedCfx = true;
+          if(onlineEl) onlineEl.textContent = cfxStat.online ? 'ON' : 'OFF';
+          if(playersEl) playersEl.textContent = cfxStat.clients ?? '—';
+          if(maxEl) maxEl.textContent = cfxStat.max ?? '—';
+          if(mapEl) mapEl.textContent = cfxStat.map ?? '—';
+          if(buildEl) buildEl.textContent = cfxStat.build ?? '—';
+          if(badge){
+            if(cfxStat.online){
+              badge.textContent = 'Estado: Activo';
+              badge.classList.remove('down');
+              badge.classList.add('ok');
+            } else {
+              badge.textContent = 'Estado: Off';
+              badge.classList.remove('ok');
+              badge.classList.add('down');
+            }
+          }
+          if(list){
+            const arr = Array.isArray(cfxStat.players) ? cfxStat.players : [];
+            list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
+          }
         }
       }
-      // Jugadores
-      const arr = Array.isArray(players) ? players : [];
-      if(list){
-        list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
+
+      // Si no usamos cfx o queremos datos más precisos, intentamos endpoints directos cuando sea seguro
+      if(!usedCfx){
+        if(!base){
+          // intentar resolver por cfx a IP (solo si la página no es HTTPS o el destino es https)
+          const resolved = await getCfxResolvedBase();
+          if(resolved && (!isHttps || resolved.startsWith('https://'))){
+            base = resolved;
+          }
+        }
+        if(!base) throw new Error('Sin IP configurada');
+        const [dRes, iRes, pRes] = await Promise.allSettled([
+          fetchJSON(`${base}/dynamic.json`),
+          fetchJSON(`${base}/info.json`),
+          fetchJSON(`${base}/players.json`)
+        ]);
+        const dyn = dRes.status === 'fulfilled' ? dRes.value : null;
+        const info = iRes.status === 'fulfilled' ? iRes.value : null;
+        const players = pRes.status === 'fulfilled' ? pRes.value : null;
+        const online = !!(dyn || info);
+        if(onlineEl) onlineEl.textContent = online ? 'ON' : 'OFF';
+        if(playersEl) playersEl.textContent = (dyn?.clients ?? (Array.isArray(players) ? players.length : 0) ?? 0);
+        if(maxEl) maxEl.textContent = (dyn?.sv_maxclients ?? info?.vars?.sv_maxClients ?? '—');
+        if(mapEl) mapEl.textContent = (info?.mapname || info?.vars?.mapname || '—');
+        if(buildEl) buildEl.textContent = (info?.server || info?.version || '—');
+        if(badge){
+          if(online){
+            badge.textContent = 'Estado: Activo';
+            badge.classList.remove('down');
+            badge.classList.add('ok');
+          } else {
+            badge.textContent = 'Estado: Off';
+            badge.classList.remove('ok');
+            badge.classList.add('down');
+          }
+        }
+        const arr = Array.isArray(players) ? players : [];
+        if(list){
+          list.innerHTML = arr.length ? arr.map(p=>`<div class="player-item"><span>${p.name}</span></div>`).join('') : '<div class="player-item"><span>Sin jugadores conectados</span></div>';
+        }
       }
     }catch(err){
   if(onlineEl) onlineEl.textContent = 'OFF';
