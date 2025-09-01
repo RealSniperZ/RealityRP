@@ -509,9 +509,9 @@ function renderEvents(){
   const makeCard = (item)=>{
     const art = document.createElement('article');
     art.className = 'card card-hover';
-    art.innerHTML = `
+  art.innerHTML = `
       <figure class="visual-card" style="margin:0 0 .8rem;">
-        <img src="${item.image || 'assets/img/placeholder.svg'}" alt="${item.title || ''}">
+    <img src="${item.image || 'assets/img/placeholder.svg'}" alt="${item.title || ''}" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'">
         ${item.caption ? `<figcaption>${item.caption}</figcaption>` : ''}
       </figure>
       <h3 class="section-title" style="font-size:1.25rem; margin:.2rem 0 .5rem;">${item.title || ''}</h3>

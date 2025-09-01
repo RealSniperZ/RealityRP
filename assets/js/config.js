@@ -28,14 +28,14 @@
         title: 'Apertura del servidor',
         caption: '¡Apertura oficial!',
         text: 'Sin Whitelist Operativo 24/ solo para vosotros jugadores',
-        image: 'assets/img/fondo 2.png',
+  image: 'assets/img/fondo%202.png',
         tags: ['Anuncio','Discord']
       },
       {
         title: 'Informe de desarrollo',
         caption: 'Estado del desarrollo',
         text: 'Economía viva, mejoras a trabajos legales y ajustes de vehículos. Próximos pasos: facciones, eventos y mas',
-        image: 'assets/img/fondo3.png',
+  image: 'assets/img/fondo3.png',
         tags: ['Devlog','Mejoras']
       }
     ],

@@ -27,7 +27,7 @@ window.SITE_CONFIG = {
   volume: 1.2,
     // Sonidos por página (clave = nombre del archivo .html)
     pages: {
-  'index.html': { enter: 'assets/sound/ps5_notification', click: 'assets/sound/ps5_trophy.mp3' },
+  'index.html': { enter: 'assets/sound/ps5_notification.mp3', click: 'assets/sound/ps5_trophy.mp3' },
   'facciones.html': { enter: 'assets/sound/enter-faction.mp3' },
   'caracteristicas.html': { enter: 'assets/sound/enter-feat.mp3', click: 'assets/sound/click-feat.mp3' },
   'eventos.html': { enter: 'assets/sound/enter-events.mp3' },
@@ -55,10 +55,10 @@ window.SITE_CONFIG = {
     { src: 'assets/img/atardecer.png', caption: 'Downtown al atardecer' },
     { src: 'assets/img/patrulla.png', caption: 'Patrulla en acción' },
     { src: 'assets/img/coches.png', caption: 'Meet de autos' },
-    { src: 'assets/img/gal4.jpg', caption: 'Operativo EMS' }
+  { src: 'assets/img/casino.png', caption: 'Operativo EMS' }
   ],
   staff: [
-    { name: 'El_Jali', role: 'Owner', avatar: 'assets/img/staff1.jpg', functions: ['Dirección del proyecto', 'Comunicación con comunidad', 'Creación de contenido', 'Gestión de redes sociales'] },
+  { name: 'El_Jali', role: 'Owner', avatar: 'assets/img/logo.png', functions: ['Dirección del proyecto', 'Comunicación con comunidad', 'Creación de contenido', 'Gestión de redes sociales'] },
     { name: 'Real Sniper Z', role: 'Owner/Programador', avatar: 'assets/img/logo sniper.gif', functions: ['Soporte a jugadores', 'Moderación', 'Eventos RP', 'Programación y desarrollo'] }
   ],
   faq: [
