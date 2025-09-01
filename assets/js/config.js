@@ -17,6 +17,11 @@
       // Sube tu imagen a assets/img/logo.png (o cambia la ruta aquí)
       logo: 'assets/img/logo.png'
     },
+    // Enlaces de redes
+    links: {
+  tiktok: 'https://www.tiktok.com/@realityrpserver?_t=ZN-8zLkEHbDS5e&_r=1',
+  discord: 'https://discord.com/invite/k6MBG3jjNY'
+    },
     // Noticias y Eventos editables sin tocar HTML
     news: [
       {
@@ -80,6 +85,7 @@
     window.SITE_CONFIG = Object.assign({}, window.SITE_CONFIG, {
       fivem: Object.assign({}, window.SITE_CONFIG.fivem, override.fivem),
       brand: Object.assign({}, window.SITE_CONFIG.brand, override.brand),
+  links: Object.assign({}, window.SITE_CONFIG.links, override.links),
       news: override.news ?? window.SITE_CONFIG.news,
       events: override.events ?? window.SITE_CONFIG.events,
       staffSections: override.staffSections ?? window.SITE_CONFIG.staffSections
