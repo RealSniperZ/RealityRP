@@ -6,6 +6,262 @@
   const $ = (q,root=document)=>root.querySelector(q);
   const $$ = (q,root=document)=>Array.from(root.querySelectorAll(q));
 
+  // ----- Efectos de sonido (Web Audio) -----
+  const SFX = (()=>{
+    let ctx = null; // AudioContext perezoso (se crea al primer gesto)
+    let unlocked = false;
+    let muted = (localStorage.getItem('sfxMuted') === '1');
+    let lastTime = 0; // limitador para no saturar
+    const MIN_INTERVAL = 110; // ms
+    const cache = new Map(); // Map<string, AudioBuffer>
+    const loading = new Map(); // Map<string, Promise<AudioBuffer|null>>
+
+    function ensureContext(){
+      if(ctx) return ctx;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      ctx = new AC();
+      return ctx;
+    }
+    async function unlock(){
+      const c = ensureContext();
+      if(!c) return;
+      if(c.state === 'suspended'){
+        try{ await c.resume(); }catch{}
+      }
+      unlocked = (c.state === 'running');
+    }
+    function setMuted(v){
+      muted = !!v; localStorage.setItem('sfxMuted', muted ? '1' : '0');
+      updateToggleUI();
+    }
+    function updateToggleUI(){
+      const btn = document.getElementById('audio-toggle');
+      if(!btn) return;
+      btn.setAttribute('aria-pressed', (!muted).toString());
+      const ico = btn.querySelector('i');
+      if(ico){
+        ico.className = muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      }
+      btn.title = muted ? 'Sonido desactivado' : 'Sonido activado';
+    }
+    function playTone({freq=440, duration=0.08, type='sine', gain=0.03}){
+      const now = performance.now();
+      if(now - lastTime < MIN_INTERVAL) return; // limitar frecuencia
+      lastTime = now;
+      if(muted) return;
+      const c = ensureContext();
+      if(!c) return;
+      if(!unlocked) return; // hasta primer gesto
+      const osc = c.createOscillator();
+      const g = c.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      const vol = (function(){
+        const cfgS = (window.SITE_CONFIG && window.SITE_CONFIG.sfx) ? window.SITE_CONFIG.sfx : null;
+        const v = (cfgS && typeof cfgS.volume === 'number') ? cfgS.volume : 1;
+        return Math.max(0, Math.min(1.5, v));
+      })();
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(gain * vol, c.currentTime + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + duration);
+      osc.connect(g).connect(c.destination);
+      osc.start();
+      osc.stop(c.currentTime + duration + 0.02);
+    }
+    function getCfg(){ return (window.SITE_CONFIG && window.SITE_CONFIG.sfx) ? window.SITE_CONFIG.sfx : null; }
+    function getVolume(){
+      const cfg = getCfg();
+      const v = (cfg && typeof cfg.volume === 'number') ? cfg.volume : 1;
+      return Math.max(0, Math.min(1, v));
+    }
+    async function getBuffer(key, url){
+      if(cache.has(key)) return cache.get(key);
+      if(loading.has(key)) return loading.get(key);
+      const p = (async ()=>{
+        try{
+          const res = await fetch(url, { cache: 'force-cache' });
+          if(!res.ok) throw new Error('SFX http '+res.status);
+          const arr = await res.arrayBuffer();
+          const c = ensureContext(); if(!c) return null;
+          return await c.decodeAudioData(arr);
+        }catch(e){
+          return null;
+        }
+      })();
+      loading.set(key, p);
+      const buf = await p;
+      loading.delete(key);
+      if(buf) cache.set(key, buf);
+      return buf;
+    }
+    async function playFile(key, url){
+      const nowP = performance.now();
+      if(nowP - lastTime < MIN_INTERVAL) return; // limitar exuberancia
+      lastTime = nowP;
+      if(muted) return;
+      const c = ensureContext(); if(!c) return;
+      if(!unlocked) return;
+      const buf = await getBuffer(key, url);
+      if(!buf) return; // si falla la carga, salimos silenciosos
+      const src = c.createBufferSource();
+      src.buffer = buf;
+  const g = c.createGain();
+  g.gain.value = 0.8 * getVolume();
+      src.connect(g).connect(c.destination);
+      try{ src.start(); }catch{}
+    }
+    function playCustomOrTone(kind, toneOpts){
+      const s = getCfg();
+      const url = s && s[kind];
+      if(url){
+        // reproducir sin bloquear el hilo; fallback a tono si falla silenciosamente
+        playFile(kind, url);
+      } else {
+        playTone(toneOpts);
+      }
+    }
+    function hover(){
+      // leve "pip" brillante o archivo configurado
+      playCustomOrTone('hover', {freq: 720, duration: 0.06, type: 'triangle', gain: 0.025});
+    }
+    function click(){
+      // clic breve con caída o archivo configurado
+      playCustomOrTone('click', {freq: 520, duration: 0.06, type: 'square', gain: 0.03});
+    }
+    function enter(){
+      const s = getCfg();
+      const url = s && s.enter;
+      if(url){ playFile('enter', url); return; }
+      // pequeño "chime" doble por defecto
+      const c = ensureContext();
+      if(!c || muted || !unlocked) return;
+      const now = c.currentTime;
+      const make = (f, t, g=0.02)=>{
+        const o = c.createOscillator(); const gg = c.createGain();
+        o.type='sine'; o.frequency.setValueAtTime(f, now);
+        gg.gain.setValueAtTime(0, now);
+        gg.gain.linearRampToValueAtTime(g, now+0.01);
+        gg.gain.exponentialRampToValueAtTime(0.0001, now+t);
+        o.connect(gg).connect(c.destination); o.start(now); o.stop(now+t+0.02);
+      };
+      make(660, 0.18, 0.018);
+      make(990, 0.16, 0.014);
+    }
+    // UI: botón de mute inyectado en header
+    function injectToggle(){
+      try{
+        const header = document.querySelector('.header-inner');
+        if(!header) return;
+        if(document.getElementById('audio-toggle')) return;
+        const btn = document.createElement('button');
+        btn.id = 'audio-toggle';
+        btn.className = 'btn btn-icon btn-ghost';
+        btn.type = 'button';
+        btn.setAttribute('aria-label','Alternar sonido');
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        const navTgl = document.getElementById('nav-toggle');
+        if(navTgl && navTgl.parentElement === header){
+          header.insertBefore(btn, navTgl);
+        } else {
+          header.appendChild(btn);
+        }
+        btn.addEventListener('click', async ()=>{
+          await unlock();
+          setMuted(!muted);
+          if(!muted){ click(); }
+        });
+        updateToggleUI();
+      }catch{}
+    }
+    // Eventos globales
+    function attachGlobal(){
+      // Desbloquear al primer gesto
+      const oneUnlock = async ()=>{ await unlock(); document.removeEventListener('pointerdown', oneUnlock); };
+      document.addEventListener('pointerdown', oneUnlock, {once:true});
+      // Hover en elementos interactivos (solo mouse)
+      document.addEventListener('mouseenter', (e)=>{
+        const t = e.target;
+        if(!(t instanceof Element)) return;
+        if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return; // evitar en táctil
+        if(t.closest('[data-silent="1"]')) return;
+        if(t.matches('a, button, .card-hover, .accordion-header, .carousel-btn, .staff-card')) hover();
+      }, true);
+      // Click
+      document.addEventListener('click', (e)=>{
+        const t = e.target;
+        if(!(t instanceof Element)) return;
+        if(t.closest('#audio-toggle')) return; // ya suena ahí
+        if(t.closest('[data-silent="1"]')) return;
+        if(t.matches('a, button, .accordion-header, .carousel-btn')) click();
+      }, true);
+    }
+    function pageKeyFromHref(href){
+      try{
+        const u = new URL(href, location.href);
+        if(u.origin !== location.origin) return null;
+        let key = u.pathname.split('/').pop() || 'index.html';
+        key = key.toLowerCase();
+        if(!key.endsWith('.html')){
+          // si es carpeta o ruta vacía, asumir index.html
+          key = 'index.html';
+        }
+        return key;
+      }catch{ return null; }
+    }
+    function enterForPage(pageKey){
+      const s = getCfg();
+      const url = (s && s.pages && s.pages[pageKey] && s.pages[pageKey].enter) ? s.pages[pageKey].enter : null;
+      if(url){ playFile('enter:'+pageKey, url); return; }
+      enter();
+    }
+    function clickForPage(pageKey){
+      const s = getCfg();
+      const url = (s && s.pages && s.pages[pageKey] && s.pages[pageKey].click) ? s.pages[pageKey].click : null;
+      if(url){ playFile('click:'+pageKey, url); return; }
+      // fallback a click global
+      const urlGlobal = s && s.click;
+      if(urlGlobal){ playFile('click', urlGlobal); return; }
+      // fallback a tono
+      playTone({freq: 520, duration: 0.06, type: 'square', gain: 0.03});
+    }
+    function isReady(){ return !!ctx && unlocked && !muted; }
+    function attachNavInterceptors(){
+      document.addEventListener('click', (e)=>{
+        const a = e.target && (e.target.closest ? e.target.closest('a') : null);
+        if(!a) return;
+        if(a.target && a.target !== '' && a.target !== '_self') return; // no interceptar nuevas pestañas
+        if(a.hasAttribute('download')) return;
+        const href = a.getAttribute('href') || '';
+        if(!href || href.startsWith('#')) return;
+        if(a.closest('[data-silent="1"]')) return;
+        const key = pageKeyFromHref(href);
+        if(!key) return;
+        // Reproducir sonido específico y aplicar retardo opcional
+        const s = getCfg();
+  const delay = (s && typeof s.navDelayMs === 'number') ? Math.max(0, Math.min(1500, s.navDelayMs)) : 600;
+        // Si listo para audio, interceptar y retrasar navegación para escuchar el sonido
+        if(isReady()){
+          e.preventDefault();
+          try{ clickForPage(key); }catch{}
+          // Mostrar overlay fade-out
+          try{
+            let fader = document.getElementById('page-fader');
+            if(!fader){ fader = document.createElement('div'); fader.id='page-fader'; document.body.appendChild(fader); }
+            // forzar reflow para transicionar
+            // eslint-disable-next-line no-unused-expressions
+            fader.offsetHeight; fader.classList.add('show');
+          }catch{}
+          setTimeout(()=>{ window.location.href = a.href; }, delay);
+        } else {
+          // no listo: que navegue normal; intentar reproducir sin bloquear
+          try{ clickForPage(key); }catch{}
+        }
+      }, true);
+    }
+    return { injectToggle, attachGlobal, attachNavInterceptors, updateToggleUI, setMuted, enter, enterForPage, clickForPage };
+  })();
+
   // Canvas fondo con partículas
   const canvas = document.getElementById('bg-canvas');
   const ctx = canvas?.getContext('2d');
@@ -124,6 +380,8 @@
         }
       });
     }
+  // Inyectar botón de sonido
+  try{ SFX.injectToggle(); }catch{}
   }
 
   // Botones conectar/copiar
@@ -149,9 +407,10 @@
       btnCfx.style.display = 'none';
     }
     btnConn?.addEventListener('click', ()=>{
-      // Intentar abrir FiveM con cfx o IP
+      // Abrir siempre la página del servidor en cfx.re si está configurado
       if(cfx){
-  window.location.href = `fivem://connect/${cfx}`;
+        const url = /^https?:\/\//i.test(cfx) ? cfx : `https://${cfx}`;
+        window.location.href = url;
       } else {
         window.location.href = `fivem://connect/${ip}:${port}`;
       }
@@ -215,6 +474,29 @@
   }
 
   document.addEventListener('DOMContentLoaded', init);
+  // Intentar reproducir un pequeño sonido al entrar (cuando el contexto esté desbloqueado)
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const pageKey = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    const tryEnter = ()=>{ try{ SFX.enterForPage(pageKey); }catch{} };
+    // Si el contexto ya está desbloqueado por algún gesto previo
+    tryEnter();
+    // En caso contrario, reproducir tras el primer gesto en esta página
+    const once = ()=>{ tryEnter(); document.removeEventListener('pointerdown', once); };
+    document.addEventListener('pointerdown', once, {once:true});
+    // Preparar handlers globales
+    try{ SFX.attachGlobal(); }catch{}
+    try{ SFX.attachNavInterceptors(); }catch{}
+    // Fade-in al cargar
+    try{
+      let fader = document.getElementById('page-fader');
+      if(!fader){ fader = document.createElement('div'); fader.id='page-fader'; document.body.appendChild(fader); }
+      // empezar visible y ocultar tras un frame
+      fader.classList.add('show');
+      requestAnimationFrame(()=>{
+        fader.classList.remove('show');
+      });
+    }catch{}
+  });
 })();
 
 // Render de noticias y eventos desde configuración
@@ -292,26 +574,54 @@ function renderGallery(){
 // Render de secciones de Staff configurables
 function renderStaff(){
   const cfg = window.SITE_CONFIG || {};
-  const sections = Array.isArray(cfg.staffSections) ? cfg.staffSections : [];
-  if(!sections.length) return;
   const container = document.getElementById('staff-grid');
   if(!container) return;
-  // Limpiar grid principal y en su lugar agregaremos títulos + cards por sección
   container.innerHTML = '';
+  // 1) Preferir lista plana de miembros desde config.example.js => SITE_CONFIG.staff
+  const members = Array.isArray(cfg.staff) ? cfg.staff : [];
+  if(members.length){
+    members.forEach(m =>{
+      const art = document.createElement('article');
+      art.className = 'card';
+      art.innerHTML = `
+        <div class="staff-card">
+          <img src="${m.avatar || 'assets/img/placeholder.svg'}" alt="${m.name || 'Staff'}" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'" />
+          <div>
+            <div style="font-weight:700; font-size:1.05rem;">${m.name || ''}</div>
+            <div class="role">${m.role || ''}</div>
+          </div>
+        </div>
+      `;
+      // Añadir funciones si existen
+      if(Array.isArray(m.functions) && m.functions.length){
+        const ul = document.createElement('ul');
+        ul.className = 'kv';
+        ul.style.marginTop = '.6rem';
+        m.functions.forEach(f =>{
+          const li = document.createElement('li');
+          li.innerHTML = `<span>${f}</span><span></span>`;
+          ul.appendChild(li);
+        });
+        art.appendChild(ul);
+      }
+      container.appendChild(art);
+    });
+    return;
+  }
+  // 2) Fallback: secciones configurables (staffSections)
+  const sections = Array.isArray(cfg.staffSections) ? cfg.staffSections : [];
+  if(!sections.length) return;
   sections.forEach(sec => {
-    // Título de sección
     const h2 = document.createElement('h2');
     h2.className = 'section-title';
     h2.style.marginTop = '1.5rem';
     h2.textContent = sec.title || '';
-    container.parentElement.insertBefore(h2, container.nextSibling);
-
-    // Card de sección
+    container.appendChild(h2);
     const article = document.createElement('article');
     article.className = 'card';
     article.innerHTML = `
       <div class="staff-card">
-        <img src="${sec.image || 'assets/img/placeholder.svg'}" alt="${sec.name || sec.title || 'Staff'}" />
+        <img src="${sec.image || 'assets/img/placeholder.svg'}" alt="${sec.name || sec.title || 'Staff'}" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'" />
         <div>
           <div style="font-weight:700; font-size:1.05rem;">${sec.name || ''}</div>
           <div class="role">${sec.role || ''}</div>
@@ -327,7 +637,7 @@ function renderStaff(){
       ul.appendChild(li);
     });
     article.appendChild(ul);
-    container.parentElement.insertBefore(article, container.nextSibling);
+    container.appendChild(article);
   });
 }
 

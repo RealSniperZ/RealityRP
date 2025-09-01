@@ -27,15 +27,15 @@
       {
         title: 'Apertura del servidor',
         caption: '¡Apertura oficial!',
-        text: 'Whitelist abierta en Discord, información de horarios y normas clave antes del día de apertura.',
-        image: 'assets/img/placeholder.svg',
+        text: 'Sin Whitelist Operativo 24/ solo para vosotros jugadores',
+        image: 'assets/img/fondo 2.png',
         tags: ['Anuncio','Discord']
       },
       {
         title: 'Informe de desarrollo',
         caption: 'Estado del desarrollo',
-        text: 'Economía viva, mejoras a trabajos legales y ajustes de vehículos. Próximos pasos: facciones, eventos y optimización.',
-        image: 'assets/img/placeholder.svg',
+        text: 'Economía viva, mejoras a trabajos legales y ajustes de vehículos. Próximos pasos: facciones, eventos y mas',
+        image: 'assets/img/fondo3.png',
         tags: ['Devlog','Mejoras']
       }
     ],
@@ -43,43 +43,19 @@
       {
         title: 'Carrera urbana',
         caption: 'Carrera urbana',
-        text: 'Clasificatorias y final con reglamento RP. Inscripción por Discord, licencias al día y premios en efectivo.',
-        image: 'assets/img/placeholder.svg',
+        text: 'Clasificatorias y final con reglamento RP. Inscripción por Discord, licencias al día y premios Ic con recompensas para el jugador.',
+        image: 'assets/img/carrera.jpg',
         tags: ['Competitivo','Legal']
       },
       {
         title: 'Noche de comunidad',
         caption: 'Noche de comunidad',
         text: 'Shows, mini-juegos y presentaciones de facciones. Ideal para integrarte y conocer la comunidad.',
-        image: 'assets/img/placeholder.svg',
+        image: 'assets/img/casino.png',
         tags: ['Social','Comunidad']
       }
     ],
-    // Secciones de Staff configurables
-    staffSections: [
-      {
-        title: 'Equipo',
-        image: 'assets/img/placeholder.svg',
-        name: 'Equipo Staff',
-        role: 'Coordinación',
-        items: [
-          'Planificación de actividades y roadmap',
-          'Coordinación con creadores y comunidad',
-          'Mejoras de calidad de vida en el servidor'
-        ]
-      },
-      {
-        title: 'Soporte',
-        image: 'assets/img/placeholder.svg',
-        name: 'Soporte & Moderación',
-        role: 'Asistencia',
-        items: [
-          'Atención de tickets y reportes',
-          'Ayuda a nuevos jugadores',
-          'Moderación de canales y eventos'
-        ]
-      }
-    ]
+    // Secciones de Staff configurables (add staffSections here)
   };
   if(window.SITE_CONFIG){
     window.SITE_CONFIG = Object.assign({}, window.SITE_CONFIG, {

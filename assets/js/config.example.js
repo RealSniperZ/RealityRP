@@ -7,17 +7,36 @@ window.SITE_CONFIG = {
   },
   fivem: {
     // Puedes usar la IP:PUERTO o el código cfx.re
-    ip: '127.0.0.1',
+    ip: 'https://cfx.re/join/4djzao',
     port: 30120,
-    cfx: 'cfx.re/join/xxxxx',
+    cfx: 'https://cfx.re/join/4djzao',
     // Intervalo de actualización en milisegundos
     refreshMs: 15000
   },
   links: {
     discord: 'https://discord.gg/yourinvite',
-    twitch: 'https://twitch.tv/yourchannel',
-    youtube: 'https://youtube.com/@yourchannel',
     tiktok: 'https://tiktok.com/@yourhandle'
+  },
+  // Sonidos personalizados: coloca tus archivos en assets/sound y referencia las rutas
+  // Formatos recomendados: .mp3 o .ogg de corta duración (<200ms)
+  // volume (0..1) ajusta el volumen general de los efectos
+  sfx: {
+  hover: 'assets/sound/hover.mp3',
+    click: 'assets/sound/ps5_trophy.mp3',
+    enter: 'assets/sound/ps5_notification.mp3',
+  volume: 1.2,
+    // Sonidos por página (clave = nombre del archivo .html)
+    pages: {
+  'index.html': { enter: 'assets/sound/ps5_notification', click: 'assets/sound/ps5_trophy.mp3' },
+  'facciones.html': { enter: 'assets/sound/enter-faction.mp3' },
+  'caracteristicas.html': { enter: 'assets/sound/enter-feat.mp3', click: 'assets/sound/click-feat.mp3' },
+  'eventos.html': { enter: 'assets/sound/enter-events.mp3' },
+  'staff.html': { click: 'assets/sound/click-staff.mp3' },
+  'galeria.html': { enter: 'assets/sound/enter-gallery.mp3' },
+  'faq.html': { click: 'assets/sound/click-faq.mp3' }
+    },
+    // Retardo (ms) antes de navegar para que el sonido de click se escuche
+  navDelayMs: 600
   },
   features: [
     { icon: 'fa-solid fa-handshake-angle', title: 'Roleplay serio', text: 'Reglas claras, administración activa y guías para integrar nuevos jugadores.' },
@@ -33,20 +52,21 @@ window.SITE_CONFIG = {
     { title: 'Noche de talentos', date: '2025-09-19', text: 'Premios en efectivo y roles especiales.', image: 'assets/img/event3.jpg' }
   ],
   gallery: [
-    { src: 'assets/img/gal1.jpg', caption: 'Downtown al atardecer' },
-    { src: 'assets/img/gal2.jpg', caption: 'Patrulla en acción' },
-    { src: 'assets/img/gal3.jpg', caption: 'Meet de autos' },
+    { src: 'assets/img/atardecer.png', caption: 'Downtown al atardecer' },
+    { src: 'assets/img/patrulla.png', caption: 'Patrulla en acción' },
+    { src: 'assets/img/coches.png', caption: 'Meet de autos' },
     { src: 'assets/img/gal4.jpg', caption: 'Operativo EMS' }
   ],
   staff: [
-    { name: 'Alex', role: 'Owner', avatar: 'assets/img/staff1.jpg' },
-    { name: 'Maya', role: 'Admin', avatar: 'assets/img/staff2.jpg' },
-    { name: 'Leo', role: 'Dev', avatar: 'assets/img/staff3.jpg' },
-    { name: 'Nico', role: 'Mod', avatar: 'assets/img/staff4.jpg' }
+    { name: 'El_Jali', role: 'Owner', avatar: 'assets/img/staff1.jpg', functions: ['Dirección del proyecto', 'Comunicación con comunidad', 'Creación de contenido', 'Gestión de redes sociales'] },
+    { name: 'Real Sniper Z', role: 'Owner/Programador', avatar: 'assets/img/logo sniper.gif', functions: ['Soporte a jugadores', 'Moderación', 'Eventos RP', 'Programación y desarrollo'] }
   ],
   faq: [
     { q: '¿Cómo me conecto?', a: 'Usa el botón Conectar o agrega la IP en Favoritos dentro de FiveM.' },
-    { q: '¿Necesito whitelist?', a: 'Sí, únete al Discord y completa el formulario.' },
-    { q: '¿Reglas principales?', a: 'Respeta el rol, evita el meta/powergaming y sigue las normas de tráfico.' }
+    { q: '¿Necesito whitelist?', a: 'No, Puedes unirte sin problemas. Tan solo cumple con las reglas.' },
+    { q: '¿Reglas principales?', a: 'Respeta el rol, evita el meta/powergaming y sigue las normas de tráfico.' },
+    { q: '¿Cómo hago las donaciones?', a: 'Puedes hacer donaciones a través de nuestro Discord donde encontrarás más información.' },
+    { q: '¿Puedo apelar una sanción?', a: 'Sí, puedes apelar una sanción contactando a un administrador en Discord.' },
+    { q: '¿Qué sanciones son apelables?', a: 'Las sanciones que no sean permanentes son apelables. o aquellas que consideres injustas.' }
   ]
 };
