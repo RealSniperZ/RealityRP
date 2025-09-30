@@ -679,3 +679,334 @@ function renderFAQ(){
     item.classList.toggle('open');
   });
 }
+
+/* Renderizador de Normativa: tarjetas y visor profesional tipo libro */
+function renderNormativa(){
+  const grid = document.getElementById('norm-grid');
+  if(!grid) return;
+
+  const viewerOverlay = document.getElementById('norm-viewer');
+  const viewerShell = viewerOverlay ? viewerOverlay.querySelector('.norm-viewer__shell') : null;
+  const viewerTitle = document.getElementById('norm-viewer-title');
+  const viewerCategory = document.getElementById('norm-viewer-category');
+  const viewerDescription = document.getElementById('norm-viewer-description');
+  const viewerLeft = document.getElementById('norm-book-left');
+  const viewerRight = document.getElementById('norm-book-right');
+  const viewerPrev = document.getElementById('norm-viewer-prev');
+  const viewerNext = document.getElementById('norm-viewer-next');
+  const viewerPagination = document.getElementById('norm-viewer-pagination');
+  const viewerClose = document.getElementById('norm-viewer-close');
+  const viewerBack = document.getElementById('norm-viewer-back');
+  const viewerToc = document.getElementById('norm-viewer-toc');
+
+  const documents = [
+    {
+      id: 'normas-generales',
+      title: 'Normativa general',
+      category: 'General',
+      cover: 'assets/normativas/normas-generales/01.svg',
+      description: 'Las bases legales y de convivencia que todo ciudadano debe conocer antes de pisar la ciudad.',
+      longDescription: 'Repasa los principios fundamentales de RealityRP: respeto, coherencia narrativa y responsabilidad. Este apartado consolida cómo se resuelven conflictos y qué comportamientos están estrictamente prohibidos dentro y fuera de rol.',
+      highlights: [
+        'Principios de convivencia y actitud obligatoria.',
+        'Procedimiento para reportes y resolución de disputas.',
+        'Listado de comportamientos prohibidos y sanciones inmediatas.'
+      ],
+      updated: 'Actualizado septiembre 2025',
+      fallbackPages: [
+        'Normativa general — contenido temporal: Consulta el Discord oficial para obtener la última versión si no ves las páginas ilustradas.'
+      ]
+    },
+    {
+      id: 'reglas-chat',
+      title: 'Reglas de chat',
+      category: 'Comunicación',
+      cover: 'assets/normativas/reglas-chat/01.svg',
+      description: 'Guía rápida para usar canales de texto y voz sin romper la inmersión ni saturar al resto de jugadores.',
+      longDescription: 'Detalla qué se considera metagaming en texto, cuándo usar cada canal y cómo mantener el chat libre de spoilers de rol o actitudes tóxicas. Incluye ejemplos prácticos y escalado disciplinario.',
+      highlights: [
+        'Uso correcto de canales IC y OOC.',
+        'Normas anti-spam y lenguaje permitido.',
+        'Buenas prácticas para comunicaciones directas con staff.'
+      ],
+      updated: 'Actualizado septiembre 2025',
+      fallbackPages: [
+        'Reglas de chat — contenido temporal: Respeta los canales, evita spoilers y sigue las instrucciones del staff.'
+      ]
+    },
+    {
+      id: 'roleplay-basico',
+      title: 'Roleplay básico',
+      category: 'Roleplay',
+      cover: 'assets/normativas/roleplay-basico/01.svg',
+      description: 'Manual de iniciación para construir personajes coherentes y escenas memorables dentro de RealityRP.',
+      longDescription: 'Aprende a diferenciar entre información IC/OOC, a reaccionar con propósito narrativo y a impulsar historias sin romper la credibilidad del servidor. Ideal para nuevos habitantes y recordatorio para veteranos.',
+      highlights: [
+        'Conceptos esenciales: metagaming, powergaming y fearRP.',
+        'Cómo preparar antecedentes y objetivos de tu personaje.',
+        'Consejos para improvisar escenas sin romper la inmersión.'
+      ],
+      updated: 'Actualizado septiembre 2025',
+      fallbackPages: [
+        'Roleplay básico — contenido temporal: Mantén siempre la coherencia de tu personaje y evita acciones imposibles de justificar.'
+      ]
+    },
+    {
+      id: 'sanciones',
+      title: 'Escala de sanciones',
+      category: 'Disciplina',
+      cover: 'assets/normativas/sanciones/01.svg',
+      description: 'Consulta el mapa de sanciones y criterios que usa el staff para actuar con transparencia y justicia.',
+      longDescription: 'Describe los diferentes niveles disciplinarios, los plazos habituales y cómo apelar. Útil para comprender por qué cada falta tiene una respuesta concreta.',
+      highlights: [
+        'Escalado de advertencia a ban permanente.',
+        'Factores que agravan o atenúan una sanción.',
+        'Proceso de apelaciones y tiempos estimados.'
+      ],
+      updated: 'Actualizado septiembre 2025',
+      fallbackPages: [
+        'Escala de sanciones — contenido temporal: Las acciones tienen consecuencias. Revisa Discord para todas las tablas detalladas.'
+      ]
+    },
+    {
+      id: 'voip',
+      title: 'VOIP y comportamiento',
+      category: 'Inmersión',
+      cover: 'assets/normativas/voip/01.svg',
+      description: 'Normas técnicas y de etiqueta para que la comunicación por voz refuerce el rol y no lo rompa.',
+      longDescription: 'Incluye requisitos de equipamiento, niveles de volumen recomendados y cómo actuar en situaciones críticas. También recoge el protocolo anti-toxicidad y el trato hacia creadores de contenido.',
+      highlights: [
+        'Configuración recomendada de audio y reducción de ruido.',
+        'Cuándo mutearse, avisar o cambiar de canal.',
+        'Guía de etiqueta para streamers y espectadores.'
+      ],
+      updated: 'Actualizado septiembre 2025',
+      fallbackPages: [
+        'VOIP y comportamiento — contenido temporal: Usa un micrófono claro, evita ruidos constantes y respeta los protocolos de staff.'
+      ]
+    }
+  ];
+
+  const manifestCache = new Map();
+  let currentDoc = null;
+  let currentPages = [];
+  let currentIndex = 0;
+
+  function createCard(doc){
+    const card = document.createElement('article');
+    card.className = 'norm-card';
+    card.setAttribute('role', 'listitem');
+    card.setAttribute('aria-label', doc.title);
+    card.tabIndex = 0;
+    const highlightsHtml = Array.isArray(doc.highlights) && doc.highlights.length
+      ? `<ul class="norm-card__highlights">${doc.highlights.map(h => `<li><i class="fa-solid fa-check"></i><span>${h}</span></li>`).join('')}</ul>`
+      : '';
+    card.innerHTML = `
+      <div class="norm-card__media">
+        <img src="${doc.cover}" alt="${doc.title}" onerror="this.onerror=null;this.src='assets/img/placeholder.svg'" />
+        <span class="norm-card__badge">${doc.category}</span>
+      </div>
+      <h3 class="norm-card__title">${doc.title}</h3>
+      <p class="norm-card__description">${doc.description}</p>
+      ${highlightsHtml}
+      <div class="norm-card__actions">
+        <div class="norm-card__meta">
+          <span data-meta="pages"><i class="fa-regular fa-file-lines"></i> Preparando…</span>
+          <span><i class="fa-regular fa-clock"></i> ${doc.updated}</span>
+        </div>
+        <button type="button" class="norm-card__button"><i class="fa-solid fa-book-open-reader"></i> Ver normativa</button>
+      </div>
+    `;
+    const open = ()=> openDocument(doc);
+    card.addEventListener('click', (e)=>{ if(!(e.target instanceof HTMLElement) || !e.target.closest('button')) open(); });
+    card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); } });
+    const btn = card.querySelector('.norm-card__button');
+    if(btn){
+      btn.addEventListener('click', (e)=>{ e.stopPropagation(); open(); });
+    }
+    const pagesMeta = card.querySelector('[data-meta="pages"]');
+    loadPages(doc).then(pages=>{
+      if(!pagesMeta) return;
+      const count = pages.length;
+      const label = count <= 0 ? 'Disponible pronto' : (count === 1 ? '1 página digital' : `${count} páginas digitales`);
+      pagesMeta.innerHTML = `<i class="fa-regular fa-file-lines"></i> ${label}`;
+    }).catch(()=>{
+      if(pagesMeta) pagesMeta.innerHTML = `<i class="fa-regular fa-file-lines"></i> Disponible pronto`;
+    });
+    return card;
+  }
+
+  documents.forEach(doc => grid.appendChild(createCard(doc)));
+
+  function renderToc(){
+    if(!viewerToc) return;
+    viewerToc.innerHTML = '';
+    documents.forEach(doc=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.id = doc.id;
+      btn.innerHTML = `<strong>${doc.title}</strong><span>${doc.category}</span>`;
+      btn.addEventListener('click', ()=> openDocument(doc));
+      viewerToc.appendChild(btn);
+    });
+  }
+  renderToc();
+
+  function highlightToc(){
+    if(!viewerToc) return;
+    viewerToc.querySelectorAll('button').forEach(btn=>{
+      btn.classList.toggle('active', currentDoc && btn.dataset.id === currentDoc.id);
+    });
+  }
+
+  function buildFallback(doc){
+    if(Array.isArray(doc.fallbackPages) && doc.fallbackPages.length){
+      return doc.fallbackPages.map((text, idx)=>({ type:'text', content:text, alt:`${doc.title} — Página ${idx+1}` }));
+    }
+    return [];
+  }
+
+  async function loadPages(doc){
+    if(manifestCache.has(doc.id)) return manifestCache.get(doc.id);
+    const promise = (async ()=>{
+      try{
+        const res = await fetch(`assets/normativas/${doc.id}/manifest.json`, { cache:'no-cache' });
+        if(!res.ok) return buildFallback(doc);
+        const data = await res.json();
+        const images = Array.isArray(data.images) ? data.images : [];
+        if(!images.length) return buildFallback(doc);
+        return images.map((img, idx)=>({ type:'image', src:`assets/normativas/${doc.id}/${img}`, alt:`${doc.title} — Página ${idx+1}` }));
+      }catch(e){
+        return buildFallback(doc);
+      }
+    })();
+    manifestCache.set(doc.id, promise);
+    return promise;
+  }
+
+  function openDocument(doc){
+    currentDoc = doc;
+    currentIndex = 0;
+    if(viewerTitle) viewerTitle.textContent = doc.title;
+    if(viewerCategory) viewerCategory.textContent = doc.category;
+    if(viewerDescription) viewerDescription.textContent = doc.longDescription || doc.description || '';
+    if(viewerOverlay){
+      viewerOverlay.hidden = false;
+      viewerOverlay.setAttribute('aria-hidden', 'false');
+    }
+    document.body.style.overflow = 'hidden';
+    if(viewerShell){
+      viewerShell.setAttribute('tabindex', '-1');
+      viewerShell.focus({ preventScroll:true });
+    }
+    highlightToc();
+    loadPages(doc).then(pages=>{
+      const available = (Array.isArray(pages) ? pages : []).slice();
+      currentPages = available.length ? available : buildFallback(doc);
+      if(!currentPages.length){
+        currentPages = [{ type:'text', content:'Estamos preparando el formato digital de esta normativa. Visita el Discord oficial para revisarla completa.', alt:doc.title }];
+      }
+      currentIndex = 0;
+      renderPages();
+    });
+  }
+
+  function renderPages(){
+    renderSingle(viewerLeft, currentPages[currentIndex] || null);
+    renderSingle(viewerRight, currentPages[currentIndex+1] || null);
+    updateControls();
+  }
+
+  function renderSingle(container, page){
+    if(!container) return;
+    container.innerHTML = '';
+    if(!page){
+      const placeholder = document.createElement('div');
+      placeholder.className = 'norm-book__placeholder';
+      placeholder.textContent = 'Página reservada';
+      container.appendChild(placeholder);
+      return;
+    }
+    if(page.type === 'image'){
+      const img = document.createElement('img');
+      img.src = page.src;
+      img.alt = page.alt || (currentDoc ? `${currentDoc.title}` : 'Página');
+      img.loading = 'lazy';
+      container.appendChild(img);
+    } else {
+      const text = document.createElement('div');
+      text.style.whiteSpace = 'pre-wrap';
+      text.style.lineHeight = '1.6';
+      text.style.fontSize = '1rem';
+      text.textContent = page.content;
+      container.appendChild(text);
+    }
+  }
+
+  function updateControls(){
+    const total = currentPages.length;
+    if(viewerPrev) viewerPrev.disabled = currentIndex <= 0;
+    if(viewerNext) viewerNext.disabled = total <= 0 || currentIndex + 2 >= total;
+    if(viewerPagination){
+      if(total <= 0){
+        viewerPagination.textContent = 'Contenido no disponible por el momento.';
+        return;
+      }
+      const start = Math.min(total, currentIndex + 1);
+      const end = Math.min(total, currentIndex + 2);
+      viewerPagination.textContent = total === 1
+        ? `Página ${start} de ${total}`
+        : `Páginas ${start}–${end} de ${total}`;
+    }
+  }
+
+  function closeViewer(){
+    if(viewerOverlay){
+      viewerOverlay.hidden = true;
+      viewerOverlay.setAttribute('aria-hidden', 'true');
+    }
+    document.body.style.overflow = '';
+    currentDoc = null;
+    currentPages = [];
+    currentIndex = 0;
+  }
+
+  viewerPrev?.addEventListener('click', ()=>{
+    if(currentIndex <= 0) return;
+    currentIndex = Math.max(0, currentIndex - 2);
+    renderPages();
+  });
+
+  viewerNext?.addEventListener('click', ()=>{
+    if(currentPages.length && currentIndex + 2 < currentPages.length){
+      currentIndex = Math.min(currentPages.length - 1, currentIndex + 2);
+      renderPages();
+    }
+  });
+
+  viewerClose?.addEventListener('click', closeViewer);
+  viewerBack?.addEventListener('click', closeViewer);
+
+  viewerOverlay?.addEventListener('click', (e)=>{
+    if(e.target === viewerOverlay) closeViewer();
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(viewerOverlay?.hidden) return;
+    if(e.key === 'Escape'){ closeViewer(); }
+    if(e.key === 'ArrowLeft' && !viewerPrev?.disabled){
+      e.preventDefault();
+      if(currentIndex > 0){
+        currentIndex = Math.max(0, currentIndex - 2);
+        renderPages();
+      }
+    }
+    if(e.key === 'ArrowRight' && !viewerNext?.disabled){
+      e.preventDefault();
+      if(currentPages.length && currentIndex + 2 < currentPages.length){
+        currentIndex = Math.min(currentPages.length - 1, currentIndex + 2);
+        renderPages();
+      }
+    }
+  });
+}

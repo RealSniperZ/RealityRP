@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ff00a8" />
+    <title>Normativa — RealityRP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="index.html" class="brand">
+          <img src="assets/img/logo.png" alt="RealityRP" class="logo" />
+          <span id="brand-name">RealityRP</span>
+        </a>
+        <nav class="nav" id="nav">
+          <a href="index.html">Inicio</a>
+          <a href="caracteristicas.html">Características</a>
+          <a href="eventos.html">Eventos</a>
+          <a href="normativa.html">Normativa</a>
+          <a href="galeria.html">Galería</a>
+          <a href="staff.html">Staff</a>
+          <a href="faq.html">Preguntas</a>
+          <a class="btn btn-discord" id="discord-link" target="_blank" rel="noopener">Discord</a>
+        </nav>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section norm-hero">
+        <div class="container norm-hero__inner">
+          <div class="norm-hero__tag"><i class="fa-solid fa-book-open"></i> Manual del servidor</div>
+          <h1 class="section-title">Normativa oficial</h1>
+          <p class="norm-hero__lead">
+            Ten a mano los cinco pilares que rigen la experiencia en RealityRP. Cada bloque reúne la normativa completa,
+            ilustrada página a página como si hojeases el libro oficial del servidor.
+          </p>
+          <div class="norm-hero__actions">
+            <a class="btn btn-ghost" href="index.html"><i class="fa-solid fa-house"></i> Inicio</a>
+            <a class="btn btn-primary" href="#norm-grid"><i class="fa-solid fa-arrow-down"></i> Explorar normativas</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="norm-overview" role="list">
+            <div class="norm-overview__intro card">
+              <h2 class="norm-overview__title">Cómo leer la normativa</h2>
+              <p>
+                Hemos agrupado el reglamento en cinco secciones clave. Cada una incluye una portada interactiva con la que podrás
+                abrir la normativa completa, navegarla como un libro digital y volver cuando quieras al resto de apartados.
+              </p>
+              <ul class="norm-overview__steps">
+                <li><i class="fa-solid fa-magnifying-glass"></i> Selecciona una sección para ver su resumen.</li>
+                <li><i class="fa-solid fa-book"></i> Pulsa “Ver normativa” y desplázate con las flechas o gestos táctiles.</li>
+                <li><i class="fa-solid fa-rotate-left"></i> Usa “Volver al listado” para elegir otra sección sin perder el hilo.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="norm-grid" class="norm-grid" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="norm-viewer" class="norm-viewer" hidden aria-hidden="true">
+      <div class="norm-viewer__shell" role="dialog" aria-modal="true" aria-labelledby="norm-viewer-title">
+        <button class="norm-viewer__close" id="norm-viewer-close" aria-label="Cerrar visor">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <aside class="norm-viewer__toc" id="norm-viewer-toc" aria-label="Otras normativas"></aside>
+        <div class="norm-viewer__content">
+          <header class="norm-viewer__header">
+            <div>
+              <span class="norm-viewer__category" id="norm-viewer-category"></span>
+              <h2 class="norm-viewer__title" id="norm-viewer-title"></h2>
+            </div>
+            <button class="btn btn-ghost" id="norm-viewer-back">
+              <i class="fa-solid fa-rotate-left"></i> Volver al listado
+            </button>
+          </header>
+          <p class="norm-viewer__description" id="norm-viewer-description"></p>
+          <div class="norm-viewer__book">
+            <button class="norm-viewer__nav prev" id="norm-viewer-prev" aria-label="Página anterior">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="norm-book" id="norm-book" aria-live="polite">
+              <figure class="norm-book__page" id="norm-book-left"></figure>
+              <figure class="norm-book__page" id="norm-book-right"></figure>
+            </div>
+            <button class="norm-viewer__nav next" id="norm-viewer-next" aria-label="Página siguiente">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <footer class="norm-viewer__footer">
+            <span id="norm-viewer-pagination" class="norm-viewer__pagination"></span>
+            <div class="norm-viewer__shortcuts">
+              <a class="btn btn-icon btn-ghost" href="caracteristicas.html" aria-label="Ir a Características">
+                <i class="fa-solid fa-layer-group"></i>
+              </a>
+              <a class="btn btn-icon btn-ghost" href="faq.html" aria-label="Ir a Preguntas frecuentes">
+                <i class="fa-solid fa-circle-question"></i>
+              </a>
+              <a class="btn btn-icon btn-ghost" href="staff.html" aria-label="Conocer al Staff">
+                <i class="fa-solid fa-user-shield"></i>
+              </a>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="social">
+          <a id="social-discord" target="_blank" rel="noopener" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
+          <a id="social-tiktok" target="_blank" rel="noopener" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+  <p>© <span id="year"></span> <img src="assets/img/logo.png" alt="Logo" class="footer-logo" /> <span id="footer-name">RealityRP</span>. No afiliado con Rockstar Games o Take-Two.</p>
+      </div>
+    </footer>
+
+    <script src="assets/js/config.example.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+      // Inicializador ligero para la normativa: delegado a app.js si la función existe
+      document.addEventListener('DOMContentLoaded', ()=>{
+        try{ if(typeof renderNormativa === 'function') renderNormativa(); }catch{}
+      });
+    </script>
+  </body>
+</html>

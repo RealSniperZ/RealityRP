@@ -69,4 +69,18 @@ window.SITE_CONFIG = {
     { q: '¿Puedo apelar una sanción?', a: 'Sí, puedes apelar una sanción contactando a un administrador en Discord.' },
     { q: '¿Qué sanciones son apelables?', a: 'Las sanciones que no sean permanentes son apelables. o aquellas que consideres injustas.' }
   ]
+  ,
+  // Ejemplo de normativas: id debe coincidir con la carpeta en assets/normativas/<id>
+  normativa: {
+    general: [
+      { id: 'normas-generales', title: 'Normas Generales' },
+      { id: 'reglas-chat', title: 'Reglas de Chat' },
+      { id: 'roleplay-basico', title: 'Roleplay básico' },
+      { id: 'sanciones', title: 'Escala de sanciones' },
+      { id: 'voip', title: 'VOIP y comportamiento' }
+    ],
+    roleplay: [],
+    sanciones: [],
+    voip: []
+  }
 };

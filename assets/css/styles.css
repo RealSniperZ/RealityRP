@@ -240,3 +240,83 @@ body{
 /* Status colors */
 .badge.ok{background:rgba(0,230,118,.15); border-color:rgba(0,230,118,.5); color:#8ff9b8}
 .badge.down{background:rgba(255,59,59,.15); border-color:rgba(255,59,59,.5); color:#ffb0b0}
+
+/* Normativa – hero y cards */
+.norm-hero{padding-top:5rem; padding-bottom:2rem}
+.norm-hero__inner{display:grid; gap:1rem; text-align:center; place-items:center}
+.norm-hero__tag{display:inline-flex; align-items:center; gap:.45rem; padding:.4rem .85rem; border-radius:999px; background:linear-gradient(90deg, rgba(255,0,168,.18), rgba(0,225,255,.16)); border:1px solid rgba(255,255,255,.16); font-weight:600; letter-spacing:.3px}
+.norm-hero__lead{max-width:760px; margin:0 auto; color:#d1c7e2; line-height:1.7; font-size:1.05rem}
+.norm-hero__actions{display:flex; align-items:center; justify-content:center; gap:.8rem; flex-wrap:wrap; margin-top:.8rem}
+
+.norm-overview{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:2rem}
+.norm-overview__intro{min-height:100%; display:flex; flex-direction:column; gap:1rem}
+.norm-overview__title{margin:0; font-family:Orbitron,Inter,sans-serif; font-size:1.35rem}
+.norm-overview__steps{margin:0; padding:0; list-style:none; display:grid; gap:.65rem; color:#dce3f4}
+.norm-overview__steps li{display:flex; align-items:center; gap:.6rem}
+.norm-overview__steps i{color:var(--accent)}
+
+.norm-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.4rem}
+.norm-card{position:relative; display:flex; flex-direction:column; gap:.9rem; padding:1.25rem; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(5,5,8,.4)); border:1px solid rgba(0,225,255,.22); box-shadow:0 16px 40px rgba(0,0,0,.35); transition:transform .3s ease, box-shadow .3s ease}
+.norm-card:hover{transform:translateY(-6px) scale(1.01); box-shadow:0 24px 56px rgba(0,0,0,.55), 0 0 38px rgba(255,0,230,.25), 0 0 26px rgba(0,225,255,.35)}
+.norm-card__media{position:relative; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,.12); aspect-ratio:16/10; background:rgba(8,8,12,.9); display:grid; place-items:center}
+.norm-card__media img{width:100%; height:100%; object-fit:cover; transition:transform .4s ease}
+.norm-card:hover .norm-card__media img{transform:scale(1.05)}
+.norm-card__badge{position:absolute; left:12px; top:12px; padding:.35rem .7rem; border-radius:999px; background:rgba(10,11,17,.78); border:1px solid rgba(255,255,255,.18); color:#fff; font-size:.78rem; letter-spacing:.4px; text-transform:uppercase}
+.norm-card__title{margin:0; font-size:1.35rem; font-family:Orbitron,Inter,sans-serif}
+.norm-card__description{margin:0; color:#d4d8f3; line-height:1.6; min-height:72px}
+.norm-card__highlights{display:grid; gap:.45rem; margin:0; padding:0; list-style:none}
+.norm-card__highlights li{display:flex; gap:.4rem; align-items:flex-start; color:#bcd0ff; font-size:.95rem}
+.norm-card__highlights i{color:var(--accent-2); margin-top:.2rem}
+.norm-card__actions{display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; justify-content:space-between}
+.norm-card__meta{display:flex; gap:.35rem; align-items:center; flex-wrap:wrap; font-size:.85rem; color:var(--muted)}
+.norm-card__button{display:inline-flex; align-items:center; gap:.5rem; padding:.65rem 1.1rem; border-radius:999px; border:1px solid rgba(255,255,255,.16); color:#fff; background:linear-gradient(90deg, rgba(255,0,168,.35), rgba(0,225,255,.35)); cursor:pointer; font-weight:600; transition:.25s}
+.norm-card__button:hover{filter:brightness(1.05)}
+
+/* Viewer overlay */
+.norm-viewer{position:fixed; inset:0; z-index:1000; background:rgba(4,4,10,.76); backdrop-filter:blur(10px); display:grid; place-items:center; padding:1.4rem}
+.norm-viewer__shell{position:relative; display:grid; grid-template-columns:minmax(220px, 260px) minmax(0,1fr); gap:1.5rem; width:min(1180px, 96%); min-height:640px; max-height:90vh; background:linear-gradient(180deg, rgba(16,16,29,.94), rgba(8,8,16,.88)); border-radius:20px; padding:1.8rem; box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.norm-viewer__close{position:absolute; top:14px; right:18px; background:transparent; color:#fff; border:none; font-size:1.4rem; cursor:pointer}
+.norm-viewer__toc{display:flex; flex-direction:column; gap:.6rem; overflow:auto; padding-right:.4rem}
+.norm-viewer__toc button{display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; padding:.75rem .85rem; border-radius:12px; border:1px solid transparent; background:rgba(255,255,255,.04); color:#e6e9ff; cursor:pointer; transition:.25s}
+.norm-viewer__toc button span{opacity:.75; font-size:.85rem}
+.norm-viewer__toc button.active{background:linear-gradient(90deg, rgba(255,0,168,.38), rgba(0,225,255,.28)); border-color:rgba(255,255,255,.24); color:#0a0a11; font-weight:600}
+.norm-viewer__toc button:hover:not(.active){border-color:rgba(255,255,255,.16)}
+.norm-viewer__content{display:flex; flex-direction:column; gap:1.2rem; overflow:hidden}
+.norm-viewer__header{display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between}
+.norm-viewer__category{display:inline-flex; align-items:center; gap:.45rem; padding:.35rem .7rem; border-radius:999px; background:rgba(255,255,255,.08); font-size:.8rem; text-transform:uppercase; letter-spacing:.35px}
+.norm-viewer__title{margin:0; font-family:Orbitron,Inter,sans-serif; font-size:1.8rem}
+.norm-viewer__description{margin:0; color:#cfd6f2; line-height:1.6}
+.norm-viewer__book{position:relative; display:flex; align-items:center; justify-content:center; gap:1rem; background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:1.4rem; flex:1 1 auto; min-height:320px}
+.norm-viewer__nav{width:46px; height:46px; border-radius:12px; border:1px solid rgba(255,255,255,.18); background:rgba(10,10,16,.8); color:#fff; display:grid; place-items:center; cursor:pointer; transition:.2s}
+.norm-viewer__nav:disabled{opacity:.35; cursor:not-allowed}
+.norm-viewer__nav:not(:disabled):hover{background:rgba(255,255,255,.12)}
+.norm-book{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:1rem; width:100%; height:100%; max-height:100%; perspective:1200px}
+.norm-book__page{background:#f9f9ff; color:#111; border-radius:10px; padding:1.2rem; box-shadow:0 14px 38px rgba(0,0,0,.35); overflow:auto; display:flex; align-items:center; justify-content:center}
+.norm-book__page img{max-width:100%; max-height:100%; object-fit:contain}
+.norm-book__placeholder{color:#5f6786; font-weight:600; font-size:.95rem; text-align:center}
+.norm-viewer__footer{display:flex; align-items:center; justify-content:space-between; gap:1rem}
+.norm-viewer__pagination{font-weight:600; letter-spacing:.3px; color:#e0e5ff}
+.norm-viewer__shortcuts{display:flex; gap:.5rem; align-items:center}
+
+@media (max-width:1100px){
+  .norm-viewer__shell{grid-template-columns:1fr; padding:1.4rem; max-height:92vh}
+  .norm-viewer__toc{flex-direction:row; overflow:auto; padding-bottom:.5rem; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:.6rem}
+  .norm-viewer__toc button{flex:1; min-width:180px}
+}
+
+@media (max-width:720px){
+  .norm-hero{padding-top:4rem}
+  .norm-hero__inner{text-align:left; place-items:flex-start}
+  .norm-hero__lead{margin-left:0; margin-right:0}
+  .norm-viewer__book{flex-direction:column; padding:1rem}
+  .norm-book{grid-template-columns:1fr; height:auto}
+  .norm-viewer__nav{order:-1}
+  .norm-viewer__footer{flex-direction:column; align-items:flex-start}
+}
+
+@media (max-width:560px){
+  .norm-card{padding:1rem}
+  .norm-card__description{min-height:auto}
+  .norm-card__actions{flex-direction:column; align-items:flex-start}
+  .norm-card__button{width:100%; justify-content:center}
+}
